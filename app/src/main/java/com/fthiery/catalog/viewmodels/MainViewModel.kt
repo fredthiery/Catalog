@@ -11,7 +11,6 @@ import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
 import com.fthiery.catalog.repositories.ItemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +22,8 @@ class MainViewModel @Inject constructor(
 
     var collections by mutableStateOf(listOf<ItemCollection>())
         private set
+    var currentItem by mutableStateOf(Item())
+    var modeEdit by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
@@ -38,8 +39,25 @@ class MainViewModel @Inject constructor(
             repository.getItems(collectionId).collect() {
                 items.clear()
                 items.addAll(it)
-            } aa
+            }
         }
         return items
     }
+
+    fun getItem(itemId: Int) {
+        viewModelScope.launch {
+            repository.getItem(itemId).collect() {
+                currentItem = it
+            }
+        }
+    }
+
+    fun saveItem(item: Item) {
+        viewModelScope.launch { repository.insert(item) }
+    }
+
+    fun newCollection(name: String) {
+        viewModelScope.launch { repository.insert(ItemCollection(name = name)) }
+    }
+
 }

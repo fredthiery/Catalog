@@ -1,44 +1,46 @@
 package com.fthiery.catalog.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Shapes
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+val lightTheme = lightColors(
+    primary = Color(255, 138, 101, 255),
+    onPrimary = Color.White,
+    secondary = Color(102, 187, 106, 255),
+    onSecondary = Color.White,
+    background = Color.White,
+    onBackground = Color.Black,
 )
 
-private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
+val darkTheme = darkColors(
+)
 
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+val shapes = Shapes(
+    large = RoundedCornerShape(16.dp)
 )
 
 @Composable
-fun CatalogTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
+fun CatalogTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable() () -> Unit
+) {
+    val systemUiController = rememberSystemUiController()
+    val colors = if (useDarkTheme) darkTheme else lightTheme
+
+    systemUiController.setStatusBarColor(color = Color.Transparent, darkIcons = !useDarkTheme)
+    systemUiController.setNavigationBarColor(color = Color.Transparent, darkIcons = false)
 
     MaterialTheme(
         colors = colors,
-        typography = Typography,
-        shapes = Shapes,
+        shapes = shapes,
         content = content
     )
 }

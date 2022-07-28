@@ -8,11 +8,11 @@ import java.util.*
 
 @Entity
 data class Item(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    var name: String,
-    var collectionId: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var name: String = "",
+    var collectionId: Int? = null,
     var description: String = "",
-    var photo: Uri?,
+    var photo: Uri? = null,
     var dateAdded: Calendar = Calendar.getInstance(),
-    var lastUpdated: Calendar?
+    var lastUpdated: Calendar? = null
 )

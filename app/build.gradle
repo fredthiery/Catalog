@@ -52,18 +52,32 @@ android {
 dependencies {
     // Androidx
     implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0'
+    implementation "androidx.activity:activity-compose:1.5.0"
+
+    // Compose
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
-    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation 'androidx.compose.material3:material3:1.0.0-alpha14'
+
+    // Accompanist
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
+    implementation 'com.google.accompanist:accompanist-insets-ui:0.24.13-rc'
 
     // Firebase
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.1.2'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.2.1'
 
     // ROOM
     implementation "androidx.room:room-ktx:$room_version"
-    implementation 'androidx.compose.material3:material3:1.0.0-alpha13'
+
+    // Coil
+    implementation "io.coil-kt:coil:$coil_version"
+    implementation "io.coil-kt:coil-compose:$coil_version"
+    
+    // Debug
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     kapt "androidx.room:room-compiler:$room_version"
 

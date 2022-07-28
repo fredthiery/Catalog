@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Catalog</string>
     <string name="title_activity_main">Catalog</string>
+    <string name="title_activity_edit">Edit item</string>
+    <string name="temp_images_dir">temp_images</string>
+    <string name="temp_image">temp_image.jpg</string>
+    <string name="label_item_name">Name</string>
+    <string name="add_a_photo">Add a photo</string>
+    <string name="save_item">Save Item</string>
+    <string name="add_an_item">Add an item</string>
+    <string name="add_a_collection">Add a collection</string>
 </resources>

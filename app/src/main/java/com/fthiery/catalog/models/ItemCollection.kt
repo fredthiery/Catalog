@@ -8,7 +8,7 @@ import androidx.room.Relation
 
 @Entity
 data class ItemCollection(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var name: String,
-    var photo: Uri
+    var photo: Uri? = null
 )

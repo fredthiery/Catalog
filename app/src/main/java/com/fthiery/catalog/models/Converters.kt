@@ -21,5 +21,8 @@ class Converters {
     fun fromUri(uri: Uri?): String = uri.toString()
 
     @TypeConverter
-    fun toUri(string: String?): Uri = Uri.parse(string)
+    fun toUri(string: String?): Uri? {
+        return if (string == "null") null
+        else Uri.parse(string)
+    }
 }
