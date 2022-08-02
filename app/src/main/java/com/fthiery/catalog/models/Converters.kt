@@ -18,11 +18,14 @@ class Converters {
     fun toTimestamp(cal: Calendar?): Long? = cal?.timeInMillis
 
     @TypeConverter
-    fun fromUri(uri: Uri?): String = uri.toString()
+    fun fromUri(uri: Uri?): String? {
+        uri?.let {return uri.toString()}
+        return null
+    }
 
     @TypeConverter
     fun toUri(string: String?): Uri? {
-        return if (string == "null") null
+        return if (string == null || string == "null") null
         else Uri.parse(string)
     }
 }

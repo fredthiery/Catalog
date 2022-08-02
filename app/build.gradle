@@ -34,6 +34,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs = ['-Xjvm-default=compatibility']
     }
     buildFeatures {
         compose true
@@ -56,12 +57,15 @@ dependencies {
     implementation "androidx.activity:activity-compose:1.5.0"
 
     // Compose
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation "androidx.compose.ui:ui:1.2.0"
+    implementation "androidx.compose.material:material:1.2.0"
+    implementation "androidx.compose.foundation:foundation:1.2.0"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-alpha14'
+
+    // Navigation
+    implementation 'androidx.navigation:navigation-compose:2.5.1'
 
     // Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
@@ -76,7 +80,8 @@ dependencies {
     // Coil
     implementation "io.coil-kt:coil:$coil_version"
     implementation "io.coil-kt:coil-compose:$coil_version"
-    
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.26.0-alpha'
+
     // Debug
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     kapt "androidx.room:room-compiler:$room_version"

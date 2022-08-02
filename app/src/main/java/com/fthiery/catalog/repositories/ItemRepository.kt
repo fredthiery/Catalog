@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 interface ItemRepository {
     val collections: Flow<List<ItemCollection>>
 
+    fun collectionSize(collectionId: Int): Flow<Int>
+
     fun getItems(collectionId: Int): Flow<List<Item>>
 
     fun getItem(id: Int): Flow<Item>

@@ -1,14 +1,16 @@
 package com.fthiery.catalog.models
 
 import android.net.Uri
-import androidx.room.Embedded
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 
 @Entity
-data class ItemCollection(
+open class ItemCollection(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    var name: String,
+    var name: String = "",
     var photo: Uri? = null
 )

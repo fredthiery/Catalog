@@ -14,6 +14,10 @@ class ItemRepositoryImpl @Inject constructor(
 ) : ItemRepository {
     override val collections: Flow<List<ItemCollection>> = itemDAO.getCollections()
 
+    override fun collectionSize(collectionId: Int): Flow<Int> {
+        return itemDAO.collectionSize(collectionId)
+    }
+
     override fun getItems(collectionId: Int): Flow<List<Item>> {
         return itemDAO.getItems(collectionId)
     }

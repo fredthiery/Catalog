@@ -1,17 +1,15 @@
 package com.fthiery.catalog.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
+import com.fthiery.catalog.models.StateItem
 import com.fthiery.catalog.repositories.ItemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,44 +18,35 @@ class MainViewModel @Inject constructor(
     private val repository: ItemRepository
 ) : ViewModel() {
 
-    var collections by mutableStateOf(listOf<ItemCollection>())
-        private set
-    var currentItem by mutableStateOf(Item())
-    var modeEdit by mutableStateOf(false)
+    val collections = repository.collections.map { collections ->
+        collections.associateBy({ it.id }, { it })
+    }
 
-    init {
-        viewModelScope.launch {
-            repository.collections.collect() {
-                collections = it
+    fun collectionSize(collectionId: Int): Flow<Int> = repository.collectionSize(collectionId)
+
+    fun newCollection(name: String) = viewModelScope.launch {
+        repository.insert(ItemCollection(name = name))
+    }
+
+    fun getItems(collectionId: Int): Flow<List<Item>> = repository.getItems(collectionId)
+
+    fun getItem(itemId: Int?): Flow<Item> {
+        itemId?.let { return repository.getItem(itemId) }
+        return flow { emit(Item()) }
+    }
+
+    fun getStateItem(itemId: Int?, collectionId: Int? = null): Flow<StateItem> {
+        itemId?.let {
+            return repository.getItem(itemId).map {
+                StateItem(it)
             }
+        }
+        return flow {
+            emit(
+                StateItem(Item(collectionId = collectionId))
+            )
         }
     }
 
-    fun getItems(collectionId: Int): SnapshotStateList<Item> {
-        val items = mutableStateListOf<Item>()
-        viewModelScope.launch {
-            repository.getItems(collectionId).collect() {
-                items.clear()
-                items.addAll(it)
-            }
-        }
-        return items
-    }
-
-    fun getItem(itemId: Int) {
-        viewModelScope.launch {
-            repository.getItem(itemId).collect() {
-                currentItem = it
-            }
-        }
-    }
-
-    fun saveItem(item: Item) {
-        viewModelScope.launch { repository.insert(item) }
-    }
-
-    fun newCollection(name: String) {
-        viewModelScope.launch { repository.insert(ItemCollection(name = name)) }
-    }
-
+    fun saveItem(item: Item) = viewModelScope.launch { repository.insert(item) }
 }

@@ -1,86 +1,119 @@
 package com.fthiery.catalog.views
 
 import android.graphics.BlurMaskFilter
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import androidx.navigation.NavController
 import com.fthiery.catalog.R
 import com.fthiery.catalog.models.Item
+import com.fthiery.catalog.ui.cornerSizes
 import com.fthiery.catalog.viewmodels.MainViewModel
 import com.fthiery.catalog.views.multifab.MultiFabItem
 import com.fthiery.catalog.views.multifab.MultiFloatingActionButton
 import com.google.accompanist.insets.ui.TopAppBar
+import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(viewModel: MainViewModel) {
-    var currentCollectionId by rememberSaveable { mutableStateOf(0) }
+fun HomeScreen(
+    viewModel: MainViewModel,
+    navController: NavController,
+    collectionId: Int?,
+    onCollectionSelect: (collectionId: Int) -> Unit
+) {
+    val collections by viewModel.collections.collectAsState(mapOf())
+
     var extendedFab by remember { mutableStateOf(false) }
     var addCollectionDialog by remember { mutableStateOf(false) }
-    var tabIndex by rememberSaveable { mutableStateOf(0) }
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 contentPadding = WindowInsets
-                    .statusBars
+                    .systemBars
                     .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                     .asPaddingValues(),
                 title = { Text(text = stringResource(R.string.title_activity_main)) },
-                backgroundColor = MaterialTheme.colors.background
+                backgroundColor = MaterialTheme.colors.background,
+                navigationIcon = {
+                    IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
+                        Icon(Icons.Filled.Menu, "Open navigation drawer")
+                    }
+                }
             )
         },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
+        drawerContent = {
+            LazyColumn(
+                contentPadding = WindowInsets.systemBars.asPaddingValues(),
+                modifier = Modifier.padding(16.dp)
             ) {
-                if (viewModel.collections.isNotEmpty()) {
-                    currentCollectionId = viewModel.collections[tabIndex].id
-
-                    ScrollableTabRow(
-                        selectedTabIndex = tabIndex,
-                        backgroundColor = Color.Transparent
-                    ) {
-                        viewModel.collections.forEachIndexed { index, collection ->
-                            Tab(
-                                text = { Text(collection.name) },
-                                selected = tabIndex == index,
-                                onClick = { tabIndex = index }
-                            )
-                        }
-                    }
+                val items = collections.values.toList()
+                itemsIndexed(items) { index, collection ->
+                    val size by viewModel.collectionSize(collection.id).collectAsState(0)
+                    DrawerItem(
+                        selected = collection.id == collectionId,
+                        label = collection.name,
+                        tag = size.toString(),
+                        angle = -5f,
+                        corners = cornerSizes(
+                            topStart = if (index == 0) 24.dp else 4.dp,
+                            bottomEnd = if (index == items.size - 1) 24.dp else 4.dp,
+                            others = 4.dp
+                        ),
+                        button = {
+                            IconButton(onClick = { /*TODO: Ajouter un CollectionEditScreen*/ }) {
+                                Icon(Icons.Filled.Menu, "Edit ${collection.name}")
+                            }
+                        },
+                        onClick = {
+                            scope.launch {
+                                onCollectionSelect(collection.id)
+                                scaffoldState.drawerState.close()
+                            }
+                        },
+                    )
+                }
+            }
+        },
+        drawerShape = RectangleShape
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (collections.isNotEmpty()) {
+                collectionId?.let {
+                    val items by viewModel.getItems(collectionId).collectAsState(listOf(Item()))
                     Collection(
-                        items = viewModel.getItems(viewModel.collections[tabIndex].id),
-                        onClick = { itemId ->
-                            viewModel.getItem(itemId)
-                            viewModel.modeEdit = true
-                        })
+                        items = items,
+                        onClick = { navController.navigate("Detail/${it}") })
                 }
             }
         }
-    )
+    }
+
+// TODO: utiliser un Popup
     MultiFloatingActionButton(
         modifier = Modifier.systemBarsPadding(),
         fabIcon = Icons.Filled.Add,
@@ -101,14 +134,13 @@ fun HomeScreen(viewModel: MainViewModel) {
         onFabItemClicked = { fabItem ->
             when (fabItem.identifier) {
                 "collection" -> addCollectionDialog = true
-                "item"       -> {
-                    viewModel.currentItem = Item(collectionId = currentCollectionId)
-                    viewModel.modeEdit = !viewModel.modeEdit
-                }
+                "item"       -> navController.navigate("NewItem/${collectionId}")
             }
             extendedFab = false
         }
     )
+
+// TODO: à placer dans une fonction à part
     if (addCollectionDialog) {
         var name by rememberSaveable { mutableStateOf("") }
         AlertDialog(
@@ -127,11 +159,10 @@ fun HomeScreen(viewModel: MainViewModel) {
                 }
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.newCollection(name)
-                        addCollectionDialog = false
-                    }) {
+                TextButton(onClick = {
+                    viewModel.newCollection(name)
+                    addCollectionDialog = false
+                }) {
                     Text("Confirm")
                 }
             },
@@ -144,85 +175,3 @@ fun HomeScreen(viewModel: MainViewModel) {
         )
     }
 }
-
-@Composable
-fun Collection(items: List<Item>, onClick: (itemId: Int) -> Unit) {
-    val scrollState = rememberLazyListState()
-    LazyColumn(
-        state = scrollState,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = WindowInsets
-            .systemBars // Adds navigation bar height to contentPadding
-            .only(WindowInsetsSides.Bottom)
-            .add(WindowInsets(left = 16.dp, top = 16.dp, bottom = 16.dp, right = 16.dp))
-            .asPaddingValues(),
-    ) {
-        items(items) { item ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onClick(item.id) }
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
-                        model = item.photo,
-                        fallback = painterResource(id = R.drawable.placeholder),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(96.dp)
-                            .height(96.dp)
-                    )
-                    Column(
-                        modifier = Modifier.padding(start = 8.dp)
-                    ) {
-                        Text(text = item.name, style = MaterialTheme.typography.subtitle1)
-                        Text(text = item.description, style = MaterialTheme.typography.caption)
-                    }
-                }
-            }
-        }
-    }
-}
-
-internal fun Modifier.coloredShadow(
-    color: Color = Color.Black,
-    borderRadius: Dp = 0.dp,
-    blurRadius: Dp = 0.dp,
-    offsetY: Dp = 0.dp,
-    offsetX: Dp = 0.dp,
-    spread: Float = 0f,
-    modifier: Modifier = Modifier,
-) = this.then(
-    modifier.drawBehind {
-        this.drawIntoCanvas {
-            val paint = Paint()
-            val frameworkPaint = paint.asFrameworkPaint()
-            val spreadPixel = spread.dp.toPx()
-            val leftPixel = (0f - spreadPixel) + offsetX.toPx()
-            val topPixel = (0f - spreadPixel) + offsetY.toPx()
-            val rightPixel = (this.size.width + spreadPixel)
-            val bottomPixel = (this.size.height + spreadPixel)
-
-            if (blurRadius != 0.dp) {
-                /*
-                    The feature maskFilter used below to apply the blur effect only works
-                    with hardware acceleration disabled.
-                 */
-                frameworkPaint.maskFilter =
-                    (BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.NORMAL))
-            }
-
-            frameworkPaint.color = color.toArgb()
-            it.drawRoundRect(
-                left = leftPixel,
-                top = topPixel,
-                right = rightPixel,
-                bottom = bottomPixel,
-                radiusX = borderRadius.toPx(),
-                radiusY = borderRadius.toPx(),
-                paint
-            )
-        }
-    }
-)

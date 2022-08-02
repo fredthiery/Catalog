@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -22,20 +21,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.fthiery.catalog.BuildConfig
 import com.fthiery.catalog.R
+import com.fthiery.catalog.models.Item
+import com.fthiery.catalog.models.StateItem
 import com.fthiery.catalog.viewmodels.MainViewModel
 import com.google.accompanist.insets.ui.TopAppBar
 import java.util.*
 
 @Composable
-fun EditScreen(
-    viewModel: MainViewModel
+fun ItemEditScreen(
+    viewModel: MainViewModel,
+    navController: NavController,
+    collectionId: Int? = null,
+    itemId: Int? = null
 ) {
-    var name by rememberSaveable { mutableStateOf(viewModel.currentItem.name) }
-    var description by rememberSaveable { mutableStateOf(viewModel.currentItem.description) }
-    var photo by rememberSaveable { mutableStateOf(viewModel.currentItem.photo) }
+    val item by viewModel.getStateItem(itemId, collectionId)
+        .collectAsState(StateItem(Item(collectionId = collectionId)))
 
     var dropdownExpanded by remember { mutableStateOf(false) }
 
@@ -50,28 +54,26 @@ fun EditScreen(
     // Image pickers
     val filePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            photo = copyToInternalStorage(uri, context)
+            item.photo = copyToInternalStorage(uri, context)
         }
     val takePictureLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) photo = copyToInternalStorage(tmpUri, context)
+            if (success) item.photo = copyToInternalStorage(tmpUri, context)
         }
 
-    BackHandler(enabled = true) {
-        viewModel.modeEdit = false
-    }
+    BackHandler { navController.navigateUp() }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 contentPadding = WindowInsets
-                    .statusBars
+                    .systemBars
                     .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                     .asPaddingValues(),
                 title = { Text(text = stringResource(id = R.string.title_activity_edit)) },
                 backgroundColor = MaterialTheme.colors.background,
                 actions = {
-                    IconButton(onClick = { viewModel.modeEdit = false }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Filled.Close, "Close")
                     }
                 }
@@ -83,14 +85,8 @@ fun EditScreen(
                     .systemBarsPadding()
                     .imePadding(),
                 onClick = {
-                    viewModel.saveItem(
-                        viewModel.currentItem.copy(
-                            name = name,
-                            description = description,
-                            photo = photo
-                        )
-                    )
-                    viewModel.modeEdit = false
+                    viewModel.saveItem(item)
+                    navController.navigateUp()
                 }) {
                 Icon(Icons.Filled.Save, contentDescription = stringResource(R.string.save_item))
             }
@@ -99,19 +95,26 @@ fun EditScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .padding(it)
+                .padding(
+                    WindowInsets
+                        .systemBars
+                        .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+                        .asPaddingValues()
+                )
                 .padding(16.dp)
         ) {
+            Text("Item Id: ${item.id}")
+            Text("Collection: ${item.collectionId}")
             OutlinedTextField(
-                value = name,
-                onValueChange = { value -> name = value },
+                value = item.name,
+                onValueChange = { value -> item.name = value },
                 label = { Text(stringResource(id = R.string.label_item_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
-                value = description,
-                onValueChange = { value -> description = value },
+                value = item.description,
+                onValueChange = { value -> item.description = value },
                 label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -150,14 +153,14 @@ fun EditScreen(
                         }
                     }
                 }
-                AnimatedVisibility(photo != null) {
+                AnimatedVisibility(item.photo != null) {
                     Card(
                         modifier = Modifier
                             .width(96.dp)
                             .height(96.dp)
                     ) {
                         AsyncImage(
-                            model = photo,
+                            model = item.photo,
                             contentDescription = "Photo",
                             contentScale = ContentScale.Crop
                         )

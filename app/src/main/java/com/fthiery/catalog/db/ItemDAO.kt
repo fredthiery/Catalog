@@ -10,6 +10,9 @@ interface ItemDAO {
     @Query("SELECT * FROM itemcollection")
     fun getCollections(): Flow<List<ItemCollection>>
 
+    @Query("SELECT COUNT(*) FROM item WHERE collectionId=:collectionId")
+    fun collectionSize(collectionId: Int): Flow<Int>
+
     @Query("SELECT * FROM item WHERE collectionId=:collectionId")
     fun getItems(collectionId: Int): Flow<List<Item>>
 

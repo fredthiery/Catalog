@@ -7,12 +7,12 @@ import androidx.room.TypeConverter
 import java.util.*
 
 @Entity
-data class Item(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    var name: String = "",
-    var collectionId: Int? = null,
-    var description: String = "",
-    var photo: Uri? = null,
-    var dateAdded: Calendar = Calendar.getInstance(),
-    var lastUpdated: Calendar? = null
+open class Item(
+    @PrimaryKey(autoGenerate = true) open val id: Int = 0,
+    open var name: String = "",
+    open var collectionId: Int? = null,
+    open var description: String = "",
+    open var photo: Uri? = null,
+    open var dateAdded: Calendar = Calendar.getInstance(),
+    open var lastUpdated: Calendar? = null
 )
