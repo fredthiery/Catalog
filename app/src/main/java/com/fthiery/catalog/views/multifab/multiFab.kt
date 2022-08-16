@@ -15,8 +15,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.fthiery.catalog.ui.theme.MultiFabBackground
-import com.google.accompanist.insets.VerticalSide
+import com.fthiery.catalog.ui.theme.angle
+import com.fthiery.catalog.ui.theme.scrimColor
 
 @Composable
 fun MultiFloatingActionButton(
@@ -36,8 +36,7 @@ fun MultiFloatingActionButton(
     ) {
         Box(modifier = Modifier
             .fillMaxSize()
-            .alpha(0.7f)
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colors.scrimColor)
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 enabled = extended,
@@ -48,7 +47,7 @@ fun MultiFloatingActionButton(
 
     Column(
         horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.spacedBy(16.dp,Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
         modifier = modifier
             .padding(16.dp)
             .fillMaxSize()
@@ -62,9 +61,7 @@ fun MultiFloatingActionButton(
                 MiniFabItem(item, onFabItemClicked)
             }
         }
-        FloatingActionButton(onClick = {
-            stateChanged(!extended)
-        }) {
+        FloatingActionButton(onClick = { stateChanged(!extended) }) {
             Icon(
                 tint = MaterialTheme.colors.onSecondary,
                 imageVector = fabIcon,
@@ -81,6 +78,7 @@ private fun MiniFabItem(
     onFabItemClicked: (item: MultiFabItem) -> Unit
 ) {
     ExtendedFloatingActionButton(
+        modifier = Modifier.rotate(MaterialTheme.shapes.angle),
         contentColor = MaterialTheme.colors.onSecondary,
         text = { Text(item.label) },
         icon = { Icon(item.icon, null) },

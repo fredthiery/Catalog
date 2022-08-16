@@ -1,10 +1,9 @@
-package com.fthiery.catalog.db
+package com.fthiery.catalog.datasources
 
 import androidx.room.*
 import com.fthiery.catalog.models.Converters
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
-import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [Item::class, ItemCollection::class],

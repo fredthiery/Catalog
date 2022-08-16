@@ -2,8 +2,9 @@ package com.fthiery.catalog.di
 
 import android.content.Context
 import androidx.room.Room
-import com.fthiery.catalog.db.ItemDAO
-import com.fthiery.catalog.db.ItemDB
+import com.fthiery.catalog.datasources.ItemDAO
+import com.fthiery.catalog.datasources.ItemDB
+import com.fthiery.catalog.datasources.UnsplashApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +30,10 @@ class DBModule {
         )
             .fallbackToDestructiveMigration()
             .build()
+    }
+
+    @Provides
+    fun provideUnsplashApiService(): UnsplashApiService {
+        return UnsplashApiService.create()
     }
 }

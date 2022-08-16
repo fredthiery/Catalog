@@ -7,17 +7,23 @@ import kotlinx.coroutines.flow.Flow
 interface ItemRepository {
     val collections: Flow<List<ItemCollection>>
 
-    fun collectionSize(collectionId: Int): Flow<Int>
+    fun collectionSize(id: Long): Flow<Long>
 
-    fun getItems(collectionId: Int): Flow<List<Item>>
+    fun getCollection(id: Long?): Flow<ItemCollection>
 
-    fun getItem(id: Int): Flow<Item>
+    fun getItems(collectionId: Long?): Flow<List<Item>>
 
-    suspend fun insert(item: Item)
+    fun searchItems(collectionId: Long?, searchPattern: String): Flow<List<Item>>
 
-    suspend fun insert(collection: ItemCollection)
+    fun getItem(id: Long?): Flow<Item>
+
+    suspend fun insert(item: Item): Long
+
+    suspend fun insert(collection: ItemCollection) : Long
 
     suspend fun delete(item: Item)
 
     suspend fun delete(collection: ItemCollection)
+
+    suspend fun getPhoto(query: String): String?
 }

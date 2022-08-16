@@ -9,4 +9,10 @@
     <string name="save_item">Save Item</string>
     <string name="add_an_item">Add an item</string>
     <string name="add_a_collection">Add a collection</string>
+    <string name="edit_collection">Edit collection</string>
+    <string name="DetailDestination">Detail/</string>
+    <string name="HomeDestination">Home</string>
+    <string name="search_in_this_collection">Search in this collection</string>
+    <string name="back">Back</string>
+    <string name="reset_search_pattern">Reset search pattern</string>
 </resources>
