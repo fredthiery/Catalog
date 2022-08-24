@@ -1,12 +1,13 @@
 package com.fthiery.catalog.ui.toplevel
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.dialog
-import com.fthiery.catalog.ui.dialogs.CollectionDeleteScreen
-import com.fthiery.catalog.ui.dialogs.CollectionEditScreen
+import com.fthiery.catalog.ui.dialogs.CollectionDeleteDialog
+import com.fthiery.catalog.ui.dialogs.CollectionEditDialog
 import com.fthiery.catalog.viewmodels.CollectionViewModel
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
 import com.fthiery.catalog.viewmodels.MainViewModel
@@ -21,15 +22,24 @@ fun NavHost(
     itemDetailViewModel: ItemDetailViewModel,
     collectionViewModel: CollectionViewModel
 ) {
+    var collectionId by rememberSaveable { mutableStateOf<Long?>(null) }
+
+    LaunchedEffect(collectionId) {
+        if (collectionId == null) collectionId = mainViewModel.firstCollection()?.id
+    }
+
     AnimatedNavHost(navController = navController, startDestination = "Home") {
         composable(
             "Home",
             enterTransition = { slideInHorizontally { -it } },
             exitTransition = { slideOutHorizontally { -it } }
         ) {
+
             HomeScreen(
                 viewModel = mainViewModel,
                 navController = navController,
+                collectionId = collectionId,
+                onCollectionSelect = { collectionId = it },
                 onItemSelect = {
                     itemDetailViewModel.selectItem(itemId = it)
                     navController.navigate("Item")
@@ -52,31 +62,29 @@ fun NavHost(
             )
         }
         dialog("EditCollection/{collectionId}") { entry ->
-            val collectionId = entry.arguments?.getString("collectionId")?.toLong()
-            collectionViewModel.selectCollection(collectionId)
-            CollectionEditScreen(
+            val id = entry.arguments?.getString("collectionId")?.toLong()
+            collectionViewModel.selectCollection(id)
+            CollectionEditDialog(
                 viewModel = collectionViewModel,
                 navController = navController,
-                onComplete = { id -> mainViewModel.selectCollection(id) },
-                collection = collectionViewModel.editCollection
+                onComplete = { collectionId = it }
             )
         }
         dialog("NewCollection") {
             collectionViewModel.selectCollection()
-            CollectionEditScreen(
+            CollectionEditDialog(
                 viewModel = collectionViewModel,
                 navController = navController,
-                onComplete = { id -> mainViewModel.selectCollection(id) },
-                collection = collectionViewModel.editCollection
+                onComplete = { collectionId = it }
             )
         }
         dialog("DeleteCollection/{collectionId}") { entry ->
-            val collectionId = entry.arguments?.getString("collectionId")?.toLong()
-            collectionViewModel.selectCollection(collectionId)
-            CollectionDeleteScreen(
+            val id = entry.arguments?.getString("collectionId")?.toLong()
+            collectionViewModel.selectCollection(id)
+            CollectionDeleteDialog(
                 viewModel = collectionViewModel,
                 navController = navController,
-                onComplete = { id -> mainViewModel.selectCollection(id) }
+                onComplete = { collectionId = null }
             )
         }
         composable(

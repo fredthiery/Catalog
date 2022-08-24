@@ -15,4 +15,6 @@
     <string name="search_in_this_collection">Search in this collection</string>
     <string name="back">Back</string>
     <string name="reset_search_pattern">Reset search pattern</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="confirm">Confirm</string>
 </resources>

@@ -71,6 +71,7 @@ dependencies {
     // Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
     implementation 'com.google.accompanist:accompanist-insets-ui:0.24.13-rc'
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.26.0-alpha'
 
     // Firebase
     implementation 'com.google.firebase:firebase-firestore-ktx:24.2.1'
@@ -88,7 +89,9 @@ dependencies {
     // Coil
     implementation "io.coil-kt:coil:$coil_version"
     implementation "io.coil-kt:coil-compose:$coil_version"
-    implementation 'com.google.accompanist:accompanist-navigation-animation:0.26.0-alpha'
+
+    // Palette
+    implementation 'androidx.palette:palette:1.0.0'
 
     // Debug
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"

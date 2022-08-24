@@ -19,22 +19,20 @@ class ItemRepositoryImpl @Inject constructor(
 ) : ItemRepository {
     override val collections: Flow<List<ItemCollection>> = itemDAO.getCollections()
 
+    override suspend fun firstCollection(): ItemCollection? = itemDAO.firstCollection()
+
     override fun collectionSize(id: Long): Flow<Long> {
         return itemDAO.collectionSize(id)
     }
 
-    override fun getCollection(id: Long?): Flow<ItemCollection> {
+    override fun getCollection(id: Long?): Flow<ItemCollection?> {
         id?.let { return itemDAO.getCollection(id) }
         return flow {}
     }
 
-    override fun getItems(collectionId: Long?): Flow<List<Item>> {
-        collectionId?.let { return itemDAO.getItems(collectionId) }
-        return flow {}
-    }
-
-    override fun searchItems(collectionId: Long?, searchPattern: String): Flow<List<Item>> {
-        return itemDAO.searchItems(collectionId,"%$searchPattern%")
+    override fun getItems(collectionId: Long?, searchPattern: String): Flow<List<Item>> {
+        return if (searchPattern == "") itemDAO.getItems(collectionId)
+        else itemDAO.searchItems(collectionId, "%$searchPattern%")
     }
 
     override fun getItem(id: Long?): Flow<Item> {
@@ -52,6 +50,7 @@ class ItemRepositoryImpl @Inject constructor(
     }
 
     override suspend fun delete(item: Item) {
+        /* TODO: devrait effacer les photos */
         itemDAO.delete(listOf(item))
     }
 
@@ -61,8 +60,8 @@ class ItemRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPhoto(query: String): String? {
-        val result = unsplash.searchPhotos(query)
-        val index = Random.nextInt(result.results.size)
-        return result.results.getOrNull(index)?.urls?.regular
+        val results = unsplash.searchPhotos(query).results
+        val index = if (results.isNotEmpty()) Random.nextInt(results.size) else 0
+        return results.getOrNull(index)?.urls?.regular
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fthiery.catalog.R
+import com.fthiery.catalog.backgroundColor
 import com.fthiery.catalog.models.ItemCollection
 import com.fthiery.catalog.ui.baselevel.cornerSizes
 import com.fthiery.catalog.ui.theme.angle
@@ -50,7 +51,8 @@ fun DrawerContent(
                 val size by viewModel.collectionSize(collection.id).collectAsState(0L)
                 DrawerItem(
                     selected = collection.id == collectionId,
-                    backgroundImage = collection.photo,
+                    backgroundImage = collection.photo ?: R.drawable.stripes,
+                    color = collection.backgroundColor(),
                     label = collection.name,
                     tag = size.toString(),
                     angle = MaterialTheme.shapes.angle,

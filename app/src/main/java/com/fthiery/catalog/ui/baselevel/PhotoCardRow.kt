@@ -10,11 +10,9 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,7 +34,7 @@ fun PhotoCardRow(
     onClick: (Uri) -> Unit
 ) {
     val context = LocalContext.current
-    var displayPhoto by rememberSaveable { mutableStateOf<Uri?>(null) }
+
     // Provides a temp Content Uri for the TakePicture contract
     val tmpUri: Uri = FileProvider.getUriForFile(
         context,
@@ -124,12 +122,5 @@ fun PhotoCardRow(
                 }
             }
         }
-    }
-}
-
-fun Modifier.slanted(angleDegrees: Float) = this.layout { measurable, constraints ->
-    val placeable = measurable.measure(constraints)
-    layout(placeable.width, placeable.height) {
-        placeable.placeRelative(0, 0)
     }
 }

@@ -156,7 +156,7 @@ fun AutoFocusingBasicText(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = TextStyle.Default,
+    textStyle: TextStyle = LocalTextStyle.current,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = false,

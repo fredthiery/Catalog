@@ -1,6 +1,5 @@
 package com.fthiery.catalog.ui.drawer
 
-import android.net.Uri
 import android.util.LayoutDirection.RTL
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -16,12 +15,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.text.layoutDirection
 import coil.compose.AsyncImage
-import com.fthiery.catalog.ui.baselevel.*
+import com.fthiery.catalog.ui.baselevel.CornerSizes
+import com.fthiery.catalog.ui.baselevel.angles
+import com.fthiery.catalog.ui.baselevel.cornerSizes
+import com.fthiery.catalog.ui.baselevel.quadrilateralShape
 import com.fthiery.catalog.ui.theme.angle
 import java.util.*
 
@@ -30,7 +33,8 @@ fun DrawerItem(
     modifier: Modifier = Modifier,
     selected: Boolean,
     icon: ImageVector? = null,
-    backgroundImage: Uri? = null,
+    backgroundImage: Any? = null,
+    color: Color,
     label: String = "",
     tag: String? = null,
     angle: Float = 0f,
@@ -49,8 +53,8 @@ fun DrawerItem(
             )
             .fillMaxWidth(),
         shape = quadrilateralShape(corners, angles(vertical = angle)),
-        color = if (selected) colors.primary else colors.surface,
-        border = BorderStroke(1.dp, colors.primary)
+        color = if (selected) color else colors.surface,
+        border = null
     ) {
         /* TODO: Ajuster largeur de l'image (cf PhotoCardRow) */
         AsyncImage(

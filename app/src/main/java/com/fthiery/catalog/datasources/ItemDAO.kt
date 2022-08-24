@@ -10,14 +10,17 @@ interface ItemDAO {
     @Query("SELECT * FROM itemcollection")
     fun getCollections(): Flow<List<ItemCollection>>
 
+    @Query("SELECT * FROM itemcollection ORDER BY dateAdded LIMIT 1")
+    suspend fun firstCollection(): ItemCollection?
+
     @Query("SELECT * FROM itemcollection WHERE id=:id")
-    fun getCollection(id: Long): Flow<ItemCollection>
+    fun getCollection(id: Long): Flow<ItemCollection?>
 
     @Query("SELECT COUNT(*) FROM item WHERE collectionId=:collectionId")
     fun collectionSize(collectionId: Long): Flow<Long>
 
     @Query("SELECT * FROM item WHERE collectionId=:collectionId")
-    fun getItems(collectionId: Long): Flow<List<Item>>
+    fun getItems(collectionId: Long?): Flow<List<Item>>
 
     @Query(
         """
