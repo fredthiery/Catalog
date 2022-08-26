@@ -1,4 +1,4 @@
-package com.fthiery.catalog.ui.baselevel
+package com.fthiery.catalog.ui.midlevel
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fthiery.catalog.R
+import com.fthiery.catalog.ui.baselevel.AutoFocusingBasicText
 import com.fthiery.catalog.viewmodels.MainViewModel
 
 @Composable
@@ -39,9 +40,7 @@ fun SearchAppBar(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
+        modifier = modifier.fillMaxWidth().height(56.dp)
     ) {
         val padding by animateFloatAsState(if (searching) 0f else 1f)
         Surface(

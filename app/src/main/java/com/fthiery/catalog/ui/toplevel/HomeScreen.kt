@@ -32,15 +32,15 @@ import com.fthiery.catalog.R
 import com.fthiery.catalog.backgroundColor
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.rememberForeverLazyGridState
-import com.fthiery.catalog.ui.baselevel.SearchAppBar
-import com.fthiery.catalog.ui.baselevel.SlantedTopAppBar
-import com.fthiery.catalog.ui.baselevel.TransparentScaffold
+import com.fthiery.catalog.ui.midlevel.SearchAppBar
+import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
+import com.fthiery.catalog.ui.midlevel.TransparentScaffold
 import com.fthiery.catalog.ui.drawer.DrawerContent
 import com.fthiery.catalog.ui.midlevel.ItemCard
 import com.fthiery.catalog.ui.theme.angle
 import com.fthiery.catalog.viewmodels.MainViewModel
-import com.fthiery.catalog.views.multifab.MultiFabItem
-import com.fthiery.catalog.views.multifab.MultiFloatingActionButton
+import com.fthiery.catalog.ui.baselevel.multifab.MultiFabItem
+import com.fthiery.catalog.ui.baselevel.multifab.MultiFloatingActionButton
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.sin
@@ -170,7 +170,7 @@ fun HomeScreen(
             }
         }
 
-// TODO: utiliser un Popup
+// TODO: utiliser un Dialog
         MultiFloatingActionButton(
             modifier = Modifier.systemBarsPadding(),
             fabIcon = Icons.Filled.Add,

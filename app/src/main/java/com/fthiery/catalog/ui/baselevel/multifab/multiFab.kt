@@ -1,4 +1,4 @@
-package com.fthiery.catalog.views.multifab
+package com.fthiery.catalog.ui.baselevel.multifab
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -28,6 +27,8 @@ fun MultiFloatingActionButton(
     onFabItemClicked: (item: MultiFabItem) -> Unit
 ) {
     val rotation by animateFloatAsState(targetValue = if (extended) 45f else 0f)
+
+    /* Utiliser Dialog */
 
     AnimatedVisibility(
         visible = extended,
@@ -47,7 +48,7 @@ fun MultiFloatingActionButton(
 
     Column(
         horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy((-16).dp, Alignment.Bottom),
         modifier = modifier
             .padding(16.dp)
             .fillMaxSize()
@@ -61,7 +62,10 @@ fun MultiFloatingActionButton(
                 MiniFabItem(item, onFabItemClicked)
             }
         }
-        FloatingActionButton(onClick = { stateChanged(!extended) }) {
+        FloatingActionButton(
+            onClick = { stateChanged(!extended) },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
             Icon(
                 tint = MaterialTheme.colors.onSecondary,
                 imageVector = fabIcon,
@@ -78,7 +82,9 @@ private fun MiniFabItem(
     onFabItemClicked: (item: MultiFabItem) -> Unit
 ) {
     ExtendedFloatingActionButton(
-        modifier = Modifier.rotate(MaterialTheme.shapes.angle),
+        modifier = Modifier
+            .rotate(MaterialTheme.shapes.angle)
+            .padding(vertical = 16.dp),
         contentColor = MaterialTheme.colors.onSecondary,
         text = { Text(item.label) },
         icon = { Icon(item.icon, null) },

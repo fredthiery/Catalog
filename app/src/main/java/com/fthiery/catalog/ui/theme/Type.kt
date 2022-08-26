@@ -6,7 +6,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.fthiery.catalog.R
 
@@ -21,7 +20,11 @@ val JosefinSans = FontFamily(
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    defaultFontFamily = JosefinSans
+    defaultFontFamily = JosefinSans,
+    button = TextStyle(
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp
+    )
     /* Other default text styles to override
     button = TextStyle(
         fontFamily = FontFamily.Default,

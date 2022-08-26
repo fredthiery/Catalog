@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -28,9 +27,11 @@ import com.fthiery.catalog.R
 import com.fthiery.catalog.backgroundColor
 import com.fthiery.catalog.copyToInternalStorage
 import com.fthiery.catalog.ui.baselevel.*
+import com.fthiery.catalog.ui.dialogs.Dialog
+import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
+import com.fthiery.catalog.ui.midlevel.TransparentScaffold
 import com.fthiery.catalog.ui.theme.angle
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
-import com.google.accompanist.insets.ui.TopAppBar
 
 @Composable
 fun ItemDetailScreen(
@@ -46,7 +47,76 @@ fun ItemDetailScreen(
     /* TODO: Ajouter un dialog de confirmation si des changements ne sont pas sauvegardés */
     BackHandler { navController.navigateUp() }
 
-    Box(Modifier.fillMaxSize()) {
+    TransparentScaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                backgroundColor = Color.Transparent,
+                elevation = 0.dp,
+                contentColor = MaterialTheme.colors.onSurface,
+                navigationIcon = {
+                    IconButton(onClick = navController::navigateUp) {
+                        Icon(Icons.Filled.ArrowBack, "Back")
+                    }
+                },
+                actions = {
+                    var dropdownExpanded by remember { mutableStateOf(false) }
+                    var displayConfirmationDialog by remember { mutableStateOf(false) }
+                    IconButton(onClick = { dropdownExpanded = true }) {
+                        Icon(Icons.Filled.MoreVert, "Menu")
+                    }
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false }) {
+                        DropdownMenuItem(onClick = {
+                            displayConfirmationDialog = true
+                            dropdownExpanded = false
+                        }) {
+                            Text("Delete this item")
+                        }
+                    }
+                    if (displayConfirmationDialog) {
+                        Dialog(
+                            title = "You're about to delete the item ${item.name} !",
+                            onDismiss = { displayConfirmationDialog = false },
+                            dismissText = "Cancel",
+                            onConfirm = {
+                                displayConfirmationDialog = false
+                                viewModel.delete(item) { navController.navigateUp() }
+                            },
+                            confirmText = "Delete",
+                            content = { Text("Are you sure ?") }
+                        )
+                    }
+                }
+            )
+        },
+        drawerGesturesEnabled = false,
+        floatingActionButton = {
+            AnimatedVisibility(
+                modified,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically { it } + fadeOut()
+            ) {
+                val context = LocalContext.current
+                FloatingActionButton(
+                    onClick = {
+                        // Save the item into the database
+                        item.name = name
+                        item.description = description
+                        viewModel.save(item, context)
+                        modified = false
+                    },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.Save,
+                        contentDescription = stringResource(R.string.save_item)
+                    )
+                }
+            }
+        }
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             var nameEditDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -73,34 +143,24 @@ fun ItemDetailScreen(
 
                 if (nameEditDialog) {
                     var editName by rememberSaveable(name) { mutableStateOf(name) }
-
-                    fun dismiss() {
-                        nameEditDialog = false
-                        editName = name
-                    }
-
-                    AlertDialog(
-                        onDismissRequest = { dismiss() },
-                        title = { Text("Modify name") },
-                        text = {
-                            AutoFocusingOutlinedText(
-                                label = "Name",
-                                value = editName,
-                                onValueChange = { editName = it },
-                                singleLine = true
-                            )
+                    Dialog(
+                        title = "Edit name",
+                        onDismiss = {
+                            nameEditDialog = false
+                            editName = name
                         },
-                        confirmButton = {
-                            Button(onClick = {
-                                nameEditDialog = false
-                                name = editName
-                                modified = true
-                            }) { Text(stringResource(R.string.confirm)) }
-                        },
-                        dismissButton = {
-                            Button(onClick = { dismiss() }) { Text(stringResource(R.string.dismiss)) }
+                        onConfirm = {
+                            nameEditDialog = false
+                            name = editName
+                            modified = true
                         }
-                    )
+                    ) {
+                        AutoFocusingOutlinedText(
+                            label = "Name",
+                            value = editName,
+                            onValueChange = { editName = it }
+                        )
+                    }
                 }
             }
 
@@ -136,7 +196,6 @@ fun ItemDetailScreen(
                         .clickable { descriptionEditDialog = true }
                         .padding(16.dp)
                 ) {
-
                     Text(
                         "Description",
                         style = MaterialTheme.typography.h6,
@@ -152,33 +211,23 @@ fun ItemDetailScreen(
                         var editDescription by rememberSaveable(description) {
                             mutableStateOf(description)
                         }
-
-                        fun dismiss() {
-                            descriptionEditDialog = false
-                            editDescription = description
-                        }
-
-                        AlertDialog(
-                            onDismissRequest = { dismiss() },
-                            title = { Text("Edit description") },
-                            text = {
-                                AutoFocusingOutlinedText(
-                                    label = "Description",
-                                    value = editDescription,
-                                    onValueChange = { editDescription = it }
-                                )
+                        Dialog(
+                            title = "Edit description",
+                            onDismiss = {
+                                descriptionEditDialog = false
+                                editDescription = description
                             },
-                            confirmButton = {
-                                Button(onClick = {
-                                    descriptionEditDialog = false
-                                    description = editDescription
-                                    modified = true
-                                }) { Text(stringResource(R.string.confirm)) }
-                            },
-                            dismissButton = {
-                                Button(onClick = { dismiss() }) { Text(stringResource(R.string.dismiss)) }
+                            onConfirm = {
+                                descriptionEditDialog = false
+                                description = editDescription
+                                modified = true
                             }
-                        )
+                        ) {
+                            AutoFocusingOutlinedText(
+                                label = "Description",
+                                value = editDescription,
+                                onValueChange = { editDescription = it })
+                        }
                     }
                 }
             }
@@ -205,8 +254,10 @@ fun ItemDetailScreen(
                         userScrollEnabled = false
                     ) {
                         itemsIndexed(items = propertiesList) { index, item ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 Text(
                                     text = item.first.uppercase(),
                                     color = MaterialTheme.colors.primary,
@@ -223,7 +274,7 @@ fun ItemDetailScreen(
                                 )
                             }
                             if (index < propertiesList.lastIndex)
-                                Divider(color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f), modifier = Modifier.padding(4.dp))
+                                Divider(Modifier.padding(4.dp))
                         }
                     }
                 }
@@ -231,126 +282,38 @@ fun ItemDetailScreen(
             if (propertiesEditDialog) {
                 val properties = remember { mutableStateListOf<Pair<String, String>>() }
                 properties.addAll(propertiesList)
-                AlertDialog(
-                    onDismissRequest = { propertiesEditDialog = false },
-                    title = { Text("Edit details") },
-                    confirmButton = {
-                        Button(onClick = {
-                            propertiesEditDialog = false
-                            modified = true
-                            properties.forEach { item.properties[it.first] = it.second }
-                        }) {
-                            Text(stringResource(R.string.confirm))
+                Dialog(
+                    title = "Edit details",
+                    onDismiss = { propertiesEditDialog = false },
+                    onConfirm = {
+                        propertiesEditDialog = false
+                        modified = true
+                        properties.forEach {
+                            item.properties[it.first] = it.second
                         }
-                    },
-                    dismissButton = {
-                        Button(onClick = {
-                            propertiesEditDialog = false
-                        }) { Text(stringResource(R.string.dismiss)) }
-                    },
-                    text = {
-                        LazyColumn() {
-                            itemsIndexed(items = properties) { index, item ->
-                                var value by rememberSaveable { mutableStateOf(item.second) }
-                                TextField(
-                                    value = value,
-                                    onValueChange = {
-                                        value = it
-                                        properties[index] = item.first to value
-                                    },
-                                    label = { Text(item.first) })
-                            }
-                            item {
-                                Row(Modifier.fillMaxWidth()) {
-                                    var newDetail by rememberSaveable { mutableStateOf("") }
-                                    TextField(
-                                        modifier = Modifier.weight(1.0f),
-                                        value = newDetail,
-                                        onValueChange = { newDetail = it },
-                                        label = { Text("New property") })
-                                    Button(onClick = { properties.add(newDetail to "") }) {
-                                        Text("Confirm")
-                                    }
-                                }
+                    }
+                ) {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        itemsIndexed(items = properties) { index, item ->
+                            var value by rememberSaveable { mutableStateOf(item.second) }
+                            OutlinedTextField(
+                                value = value,
+                                onValueChange = {
+                                    value = it
+                                    properties[index] = item.first to value
+                                },
+                                label = { Text(item.first) }
+                            )
+                        }
+                        item {
+                            Row(Modifier.fillMaxWidth(), Arrangement.Center) {
+                                TextButton(onClick = {
+
+                                }) { Text("New Custom field".uppercase()) }
                             }
                         }
                     }
-                )
-            }
-        }
-
-        TopAppBar(
-            title = {},
-            contentPadding = WindowInsets.systemBars.asPaddingValues(),
-            backgroundColor = Color.Transparent,
-            elevation = 0.dp,
-            contentColor = MaterialTheme.colors.onSurface,
-            navigationIcon = {
-                IconButton(onClick = navController::navigateUp) {
-                    Icon(Icons.Filled.ArrowBack, "Back")
                 }
-            },
-            actions = {
-                var dropdownExpanded by remember { mutableStateOf(false) }
-                var displayConfirmationDialog by remember { mutableStateOf(false) }
-                IconButton(onClick = { dropdownExpanded = true }) {
-                    Icon(Icons.Filled.MoreVert, "Menu")
-                }
-                DropdownMenu(
-                    expanded = dropdownExpanded,
-                    onDismissRequest = { dropdownExpanded = false }) {
-                    DropdownMenuItem(onClick = {
-                        displayConfirmationDialog = true
-                        dropdownExpanded = false
-                    }) {
-                        Text("Delete this item")
-                    }
-                }
-                if (displayConfirmationDialog) {
-                    AlertDialog(
-                        onDismissRequest = { displayConfirmationDialog = false },
-                        title = { Text("You're about to delete the item ${item.name}") },
-                        text = { Text("Are you sure ?") },
-                        confirmButton = {
-                            Button(onClick = {
-                                displayConfirmationDialog = false
-                                viewModel.delete(item) { navController.navigateUp() }
-                            }) {
-                                Text("Delete")
-                            }
-                        },
-                        dismissButton = {
-                            Button(onClick = { displayConfirmationDialog = false }) {
-                                Text("Cancel")
-                            }
-                        }
-                    )
-                }
-            }
-        )
-
-        AnimatedVisibility(
-            modified,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(WindowInsets.systemBars.asPaddingValues())
-                .padding(16.dp),
-            enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut()
-        ) {
-            val context = LocalContext.current
-            FloatingActionButton(
-                onClick = {
-                    // Save the item into the database
-                    item.name = name
-                    item.description = description
-                    viewModel.save(item, context)
-                    modified = false
-                }) {
-                Icon(
-                    Icons.Filled.Save,
-                    contentDescription = stringResource(R.string.save_item)
-                )
             }
         }
     }

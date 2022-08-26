@@ -49,8 +49,10 @@ fun PhotoCardRow(
     }
 
     val angle = MaterialTheme.shapes.angle
+    val photoCardSize = 128
+
     fun Float.toRad(): Double = this * PI / 180
-    val rowHeight = 96 * (1 + sin(abs(angle.toRad())))
+    val rowHeight = photoCardSize * (1 + sin(abs(angle.toRad())))
     val widthDp = LocalConfiguration.current.screenWidthDp
     val width = (widthDp / sin((90f - abs(angle)).toRad())) + (sin(abs(angle).toRad()) * rowHeight)
 
@@ -69,7 +71,7 @@ fun PhotoCardRow(
                 modifier = Modifier
                     .clickable { onClick(photo) }
                     .rotate(-angle)
-                    .width(96.dp)
+                    .width(photoCardSize.dp)
                     .height(rowHeight.dp),
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
@@ -91,7 +93,7 @@ fun PhotoCardRow(
                 modifier = Modifier
                     .clickable { dropdownExpanded = true }
                     .rotate(-angle)
-                    .width(96.dp)
+                    .width(photoCardSize.dp)
                     .height(rowHeight.dp),
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),

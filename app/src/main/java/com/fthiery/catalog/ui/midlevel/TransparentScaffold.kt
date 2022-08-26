@@ -1,4 +1,4 @@
-package com.fthiery.catalog.ui.baselevel
+package com.fthiery.catalog.ui.midlevel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -34,7 +34,9 @@ fun TransparentScaffold(
     content: @Composable (PaddingValues) -> Unit
 ) {
     val child = @Composable { childModifier: Modifier ->
-        Box(modifier = modifier.background(backgroundColor).fillMaxSize()) {
+        Box(modifier = modifier
+            .background(backgroundColor)
+            .fillMaxSize()) {
 
             content(PaddingValues(0.dp))
 

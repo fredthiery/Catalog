@@ -1,6 +1,5 @@
-package com.fthiery.catalog.ui.baselevel
+package com.fthiery.catalog.ui.midlevel
 
-import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -11,16 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
-import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.fthiery.catalog.ui.baselevel.angles
+import com.fthiery.catalog.ui.baselevel.cornerSizes
+import com.fthiery.catalog.ui.baselevel.quadrilateralShape
 
 @Composable
 fun SlantedTopAppBar(

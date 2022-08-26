@@ -3,7 +3,6 @@ package com.fthiery.catalog.ui.toplevel
 import androidx.compose.animation.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.dialog
 import com.fthiery.catalog.ui.dialogs.CollectionDeleteDialog

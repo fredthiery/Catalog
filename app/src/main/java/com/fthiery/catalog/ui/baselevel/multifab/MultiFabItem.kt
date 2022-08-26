@@ -1,4 +1,4 @@
-package com.fthiery.catalog.views.multifab
+package com.fthiery.catalog.ui.baselevel.multifab
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
