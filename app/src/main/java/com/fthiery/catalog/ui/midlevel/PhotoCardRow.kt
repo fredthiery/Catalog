@@ -1,4 +1,4 @@
-package com.fthiery.catalog.ui.baselevel
+package com.fthiery.catalog.ui.midlevel
 
 import android.content.Context
 import android.net.Uri
@@ -21,6 +21,7 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.fthiery.catalog.BuildConfig
 import com.fthiery.catalog.R
+import com.fthiery.catalog.ui.baselevel.*
 import com.fthiery.catalog.ui.theme.angle
 import kotlin.math.PI
 import kotlin.math.abs

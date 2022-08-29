@@ -52,7 +52,7 @@ fun DrawerContent(
                 DrawerItem(
                     selected = collection.id == collectionId,
                     backgroundImage = collection.photo ?: R.drawable.stripes,
-                    color = collection.backgroundColor(),
+                    itemColor = collection.backgroundColor(),
                     label = collection.name,
                     tag = size.toString(),
                     angle = MaterialTheme.shapes.angle,

@@ -17,17 +17,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fthiery.catalog.R
+import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.ui.baselevel.AutoFocusingBasicText
 import com.fthiery.catalog.viewmodels.MainViewModel
 
 @Composable
 fun SearchAppBar(
-    viewModel: MainViewModel,
     modifier: Modifier = Modifier,
+    contentColor: Color = MaterialTheme.colors.onSurface,
     navigationIcon: @Composable RowScope.() -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
     onSearch: (pattern: String) -> Unit
@@ -48,8 +51,8 @@ fun SearchAppBar(
                 .fillMaxSize()
                 .padding(vertical = (padding * 8).dp, horizontal = (padding * 16).dp),
             shape = RoundedCornerShape((padding * 50).toInt()),
-            color = MaterialTheme.colors.surface.copy(alpha = 0.5f),
-            contentColor = MaterialTheme.colors.onSurface,
+            color = contentColor.contentColor().copy(alpha = 0.5f),
+            contentColor = contentColor,
             elevation = 0.dp
         ) {
             Crossfade(searching) {
@@ -75,7 +78,7 @@ fun SearchAppBar(
                         modifier = Modifier
                             .fillMaxSize()
                             .align(Alignment.Center),
-                        colors = textButtonColors(contentColor = MaterialTheme.colors.onSurface)
+                        colors = textButtonColors(contentColor = contentColor)
                     ) {
                         Text(stringResource(R.string.search_in_this_collection))
                     }

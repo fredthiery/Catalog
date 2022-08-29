@@ -2,7 +2,6 @@ package com.fthiery.catalog.ui.drawer
 
 import android.util.LayoutDirection.RTL
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -21,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.text.layoutDirection
 import coil.compose.AsyncImage
+import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.ui.baselevel.CornerSizes
 import com.fthiery.catalog.ui.baselevel.angles
 import com.fthiery.catalog.ui.baselevel.cornerSizes
@@ -34,7 +34,7 @@ fun DrawerItem(
     selected: Boolean,
     icon: ImageVector? = null,
     backgroundImage: Any? = null,
-    color: Color,
+    itemColor: Color,
     label: String = "",
     tag: String? = null,
     angle: Float = 0f,
@@ -43,6 +43,7 @@ fun DrawerItem(
     onClick: () -> Unit = {}
 ) {
     val height by animateFloatAsState(if (selected) 128f else 64f)
+    val backgroundColor = if (selected) itemColor else colors.surface
     Surface(
         modifier = modifier
             .height(height.dp)
@@ -53,7 +54,8 @@ fun DrawerItem(
             )
             .fillMaxWidth(),
         shape = quadrilateralShape(corners, angles(vertical = angle)),
-        color = if (selected) color else colors.surface,
+        color = backgroundColor,
+        contentColor = backgroundColor.contentColor(),
         border = null
     ) {
         /* TODO: Ajuster largeur de l'image (cf PhotoCardRow) */

@@ -4,8 +4,12 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.AppBarDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -14,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.ui.baselevel.angles
 import com.fthiery.catalog.ui.baselevel.cornerSizes
 import com.fthiery.catalog.ui.baselevel.quadrilateralShape
@@ -28,7 +33,7 @@ fun SlantedTopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     backgroundImage: Any? = null,
     backgroundColor: Color = MaterialTheme.colors.surface,
-    contentColor: Color = contentColorFor(backgroundColor = backgroundColor),
+    contentColor: Color = backgroundColor.contentColor(),
     elevation: Dp = AppBarDefaults.TopAppBarElevation,
     onTitleClick: () -> Unit = {},
     titleContent: @Composable () -> Unit,
@@ -53,15 +58,17 @@ fun SlantedTopAppBar(
         Box() {
             /* TODO: Calculer la taille correcte de requiredHeight */
             val lightTeme = MaterialTheme.colors.isLight
-            AsyncImage(
-                model = backgroundImage,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .requiredHeight(250.dp),
-                contentDescription = "Background",
-                contentScale = ContentScale.FillWidth,
-                alpha = 0.2f
-            )
+            backgroundImage?.let {
+                AsyncImage(
+                    model = backgroundImage,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .requiredHeight(250.dp),
+                    contentDescription = "Background",
+                    contentScale = ContentScale.FillWidth,
+                    alpha = 0.2f
+                )
+            }
             Column(
                 verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier

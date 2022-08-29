@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fthiery.catalog.getBitmapColors
+import com.fthiery.catalog.getBitmapColor
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.repositories.ItemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,9 +49,7 @@ class ItemDetailViewModel @Inject constructor(
     private suspend fun Item.setColors(context: Context) {
         if (photos.isNotEmpty()) {
             photos[0].path?.let {
-                val (light, dark) = getBitmapColors(it, context)
-                lightColor = light
-                darkColor = dark
+                color = getBitmapColor(it, context)
             }
         }
     }

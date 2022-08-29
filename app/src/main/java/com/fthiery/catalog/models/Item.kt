@@ -1,7 +1,8 @@
 package com.fthiery.catalog.models
 
+import android.graphics.Color.rgb
 import android.net.Uri
-import androidx.compose.ui.graphics.Color
+import androidx.annotation.ColorInt
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
@@ -16,6 +17,5 @@ data class Item(
     var lastUpdated: Calendar? = null,
     var properties: MutableMap<String, String> = mutableMapOf(),
     var photos: List<Uri> = listOf(),
-    var lightColor: Int = 0xFFFFFF,
-    var darkColor: Int = 0x000000
+    @ColorInt var color: Int? = null
 )

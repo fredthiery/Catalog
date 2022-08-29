@@ -30,17 +30,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fthiery.catalog.R
 import com.fthiery.catalog.backgroundColor
+import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.rememberForeverLazyGridState
+import com.fthiery.catalog.ui.baselevel.multifab.MultiFabItem
+import com.fthiery.catalog.ui.baselevel.multifab.MultiFloatingActionButton
+import com.fthiery.catalog.ui.drawer.DrawerContent
+import com.fthiery.catalog.ui.midlevel.ItemCard
 import com.fthiery.catalog.ui.midlevel.SearchAppBar
 import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
 import com.fthiery.catalog.ui.midlevel.TransparentScaffold
-import com.fthiery.catalog.ui.drawer.DrawerContent
-import com.fthiery.catalog.ui.midlevel.ItemCard
 import com.fthiery.catalog.ui.theme.angle
 import com.fthiery.catalog.viewmodels.MainViewModel
-import com.fthiery.catalog.ui.baselevel.multifab.MultiFabItem
-import com.fthiery.catalog.ui.baselevel.multifab.MultiFloatingActionButton
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.sin
@@ -80,7 +81,7 @@ fun HomeScreen(
         topBar = {
             AnimatedVisibility(collections.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
                 SearchAppBar(
-                    viewModel = viewModel,
+                    contentColor = collection?.backgroundColor()?.contentColor() ?: MaterialTheme.colors.onSurface,
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, "Open navigation drawer")
@@ -149,7 +150,9 @@ fun HomeScreen(
                     items(items = items) { item ->
                         var offset by remember { mutableStateOf(0) }
                         Box(modifier = Modifier
-                            .onGloballyPositioned { offset = (it.positionInParent().x * angleOffset).toInt() }
+                            .onGloballyPositioned {
+                                offset = (it.positionInParent().x * angleOffset).toInt()
+                            }
                             .offset { IntOffset(0, offset) }
                         ) {
                             ItemCard(item, onItemSelect)

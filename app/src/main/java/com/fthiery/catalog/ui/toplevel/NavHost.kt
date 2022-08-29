@@ -86,6 +86,7 @@ fun NavHost(
                 onComplete = { collectionId = null }
             )
         }
+        /* TODO: Should be a dialog */
         composable(
             "DisplayPhoto",
             enterTransition = { scaleIn() },
