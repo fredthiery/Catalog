@@ -2,6 +2,7 @@ package com.fthiery.catalog.ui.midlevel
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +33,7 @@ import kotlin.math.sin
 fun PhotoCardRow(
     modifier: Modifier = Modifier,
     photos: List<Uri> = listOf(),
+    color: Color = MaterialTheme.colors.primary,
     onNewPhoto: (Uri, Context) -> Unit,
     onClick: (Uri) -> Unit
 ) {
@@ -53,7 +56,8 @@ fun PhotoCardRow(
     val photoCardSize = 128
 
     fun Float.toRad(): Double = this * PI / 180
-    val rowHeight = photoCardSize * (1 + sin(abs(angle.toRad())))
+    val offset = 1 + sin(abs(angle.toRad()))
+    val rowHeight = photoCardSize * offset
     val widthDp = LocalConfiguration.current.screenWidthDp
     val width = (widthDp / sin((90f - abs(angle)).toRad())) + (sin(abs(angle).toRad()) * rowHeight)
 
@@ -63,7 +67,7 @@ fun PhotoCardRow(
             .rotate(angle),
         contentPadding = WindowInsets.systemBars
             .only(WindowInsetsSides.Horizontal)
-            .add(WindowInsets(left = 16.dp, right = 16.dp))
+            .add(WindowInsets(left = 14.dp, right = 14.dp))
             .asPaddingValues(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -71,19 +75,19 @@ fun PhotoCardRow(
             Card(
                 modifier = Modifier
                     .clickable { onClick(photo) }
-                    .rotate(-angle)
                     .width(photoCardSize.dp)
-                    .height(rowHeight.dp),
+                    .height(rowHeight.dp)
+                    .rotate(-angle),
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
-                    angles(horizontal = angle),
-                    inset = Inset.Inside
+                    angles(horizontal = angle)
                 )
             ) {
                 AsyncImage(
                     model = photo,
                     contentDescription = "Photo",
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.requiredHeight((rowHeight * offset).dp)
                 )
             }
         }
@@ -93,18 +97,18 @@ fun PhotoCardRow(
             Card(
                 modifier = Modifier
                     .clickable { dropdownExpanded = true }
-                    .rotate(-angle)
                     .width(photoCardSize.dp)
-                    .height(rowHeight.dp),
+                    .height(rowHeight.dp)
+                    .rotate(-angle),
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
-                    angles(horizontal = MaterialTheme.shapes.angle),
-                    Inset.Inside
+                    angles(horizontal = angle)
                 )
             ) {
                 Icon(
-                    Icons.Filled.AddAPhoto,
-                    stringResource(R.string.add_a_photo),
+                    imageVector = Icons.Filled.AddAPhoto,
+                    contentDescription = stringResource(R.string.add_a_photo),
+                    tint = color,
                     modifier = Modifier.padding(32.dp)
                 )
                 DropdownMenu(

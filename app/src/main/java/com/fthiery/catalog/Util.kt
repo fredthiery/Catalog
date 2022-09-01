@@ -144,20 +144,34 @@ private suspend fun getColor(drawable: Drawable?): Int {
 @Composable
 fun ItemCollection.backgroundColor(): Color {
     color?.let {
-        return if (isSystemInDarkTheme()) Color(it.setSL(0.6f, 0.3f))
-        else Color(it.setSL(0.8f, 0.6f))
+        return if (isSystemInDarkTheme()) Color(it.setSL(.6f, .3f))
+        else Color(it.setSL(.8f, .6f))
     }
     return MaterialTheme.colors.surface
 }
 
 @Composable
 fun Item.backgroundColor(): Color {
-    color?.let {
-        return if (isSystemInDarkTheme()) Color(it.setSL(0.6f, 0.3f))
-        else Color(it.setSL(0.8f, 0.6f))
-    }
-    return MaterialTheme.colors.surface
+        return if (isSystemInDarkTheme()) darkColor()
+        else lightColor()
 }
+
+@Composable
+fun Item.lightColor(): Color {
+    color?.let {
+        return Color(it.setSL(.8f, .6f))
+    }
+    return MaterialTheme.colors.primary
+}
+
+@Composable
+fun Item.darkColor(): Color {
+    color?.let {
+        return Color(it.setSL(.6f, .3f))
+    }
+    return MaterialTheme.colors.primary
+}
+
 
 @ColorInt
 private fun Int.setSL(saturation: Float? = null, luminance: Float? = null): Int {

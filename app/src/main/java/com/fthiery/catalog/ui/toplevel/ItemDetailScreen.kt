@@ -4,9 +4,11 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -17,21 +19,20 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.fthiery.catalog.*
 import com.fthiery.catalog.R
-import com.fthiery.catalog.backgroundColor
-import com.fthiery.catalog.contentColor
-import com.fthiery.catalog.copyToInternalStorage
-import com.fthiery.catalog.ui.baselevel.AutoFocusingOutlinedText
-import com.fthiery.catalog.ui.baselevel.angles
-import com.fthiery.catalog.ui.baselevel.cornerSizes
-import com.fthiery.catalog.ui.baselevel.quadrilateralShape
+import com.fthiery.catalog.ui.baselevel.*
 import com.fthiery.catalog.ui.dialogs.Dialog
 import com.fthiery.catalog.ui.midlevel.PhotoCardRow
 import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
@@ -39,6 +40,7 @@ import com.fthiery.catalog.ui.midlevel.TransparentScaffold
 import com.fthiery.catalog.ui.theme.angle
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ItemDetailScreen(
     viewModel: ItemDetailViewModel,
@@ -52,13 +54,19 @@ fun ItemDetailScreen(
 
     var deleteConfirmationDialog by remember { mutableStateOf(false) }
     var nameEditDialog by rememberSaveable { mutableStateOf(false) }
+    var nameEdit by remember { mutableStateOf(false) }
     var descriptionEditDialog by rememberSaveable { mutableStateOf(false) }
     var propertiesEditDialog by rememberSaveable { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     /* TODO: Ajouter un dialog de confirmation si des changements ne sont pas sauvegardés */
     BackHandler { navController.navigateUp() }
 
     TransparentScaffold(
+        modifier = Modifier.clickable(
+            indication = null,
+            interactionSource = interactionSource
+        ) { nameEdit = false },
         topBar = {
             TopAppBar(
                 title = {},
@@ -125,28 +133,81 @@ fun ItemDetailScreen(
                 angleDegrees = MaterialTheme.shapes.angle,
                 backgroundImage = item.photos.getOrNull(0),
                 backgroundColor = item.backgroundColor(),
-                onTitleClick = { nameEditDialog = true }
+                onTitleClick = { nameEdit = true }
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(visible = name.isEmpty()) {
-                        Text(
-                            text = "Name of this item",
-                            style = MaterialTheme.typography.caption,
-                            fontStyle = FontStyle.Italic,
-                            color = MaterialTheme.colors.primary
-                        )
+                Crossfade(nameEdit) { editing ->
+                    when (editing) {
+                        false -> {
+                            Crossfade(name.isEmpty()) { empty ->
+                                when (empty) {
+                                    true -> Text(
+                                        text = "Name of this item",
+                                        style = MaterialTheme.typography.subtitle1,
+                                        fontStyle = FontStyle.Italic,
+                                        color = item.backgroundColor()
+                                            .contentColor()
+                                            .copy(alpha = 0.8f)
+                                    )
+                                    false -> Text(name)
+                                }
+                            }
+                        }
+                        true  -> {
+                            var textFieldValue by rememberSaveable(name) { mutableStateOf(name) }
+                            var suggestionsExpanded by remember { mutableStateOf(false) }
+                            val suggestions by mutableStateOf(viewModel.suggestions)
+                            BackHandler { nameEdit = false }
+
+                            ExposedDropdownMenuBox(
+                                expanded = suggestionsExpanded,
+                                onExpandedChange = { suggestionsExpanded = !suggestionsExpanded }) {
+                                AutoFocusingBasicText(
+                                    value = textFieldValue,
+                                    onValueChange = {
+                                        textFieldValue = it
+                                        viewModel.getSuggestions(textFieldValue) {
+                                            suggestionsExpanded = suggestions.isNotEmpty()
+                                        }
+                                    },
+                                    textStyle = LocalTextStyle.current
+                                        .copy(color = item.backgroundColor().contentColor()),
+                                    cursorBrush = SolidColor(item.backgroundColor().contentColor()),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    keyboardOptions = KeyboardOptions(
+                                        capitalization = KeyboardCapitalization.Sentences,
+                                        imeAction = ImeAction.Done
+                                    ),
+                                    keyboardActions = KeyboardActions(onDone = {
+                                        nameEdit = false
+                                        name = textFieldValue
+                                        modified = true
+                                    })
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = suggestionsExpanded,
+                                    onDismissRequest = { suggestionsExpanded = false }
+                                ) {
+                                    suggestions.forEach { search ->
+                                        DropdownMenuItem(onClick = {
+                                            textFieldValue = search.title ?: textFieldValue
+                                            suggestionsExpanded = false
+                                        }) {
+                                            Text(search.title ?: "")
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    Text(
-                        text = name,
-                        fontStyle = FontStyle.Italic
-                    )
                 }
             }
 
+            // PHOTOS
             val photos = mutableStateListOf<Uri>()
             photos.addAll(item.photos)
             PhotoCardRow(
                 photos = photos,
+                color = item.lightColor(),
                 onNewPhoto = { uri, context ->
                     copyToInternalStorage(uri, context)?.let {
                         photos.add(it)
@@ -159,74 +220,45 @@ fun ItemDetailScreen(
                     navController.navigate("DisplayPhoto")
                 }
             )
-            Surface(
-                shape = quadrilateralShape(
-                    cornerSizes(4.dp),
-                    angles(top = MaterialTheme.shapes.angle)
-                ),
-                elevation = 1.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
+
+            // DESCRIPTION
+            SlantedSurface(
+                title = "Description",
+                titleColor = item.lightColor(),
+                onClick = { descriptionEditDialog = true }
             ) {
-                Column(
-                    modifier = Modifier
-                        .clickable { descriptionEditDialog = true }
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        "Description",
-                        style = MaterialTheme.typography.h6,
-                        color = MaterialTheme.colors.primary,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset(y = (-12).dp)
-                    )
-                    Text(description)
-                }
+                Text(description)
             }
 
+            // PROPERTIES
             val propertiesList = item.properties.map { it.key to it.value }
-            Surface(
-                shape = RoundedCornerShape(4.dp),
-                elevation = 1.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .clickable { propertiesEditDialog = true }
+            SlantedSurface(
+                title = "Details",
+                titleColor = item.lightColor(),
+                onClick = { propertiesEditDialog = true }
             ) {
-                Column(Modifier.padding(16.dp)) {
-                    Text(
-                        "Details",
-                        style = MaterialTheme.typography.h6,
-                        color = MaterialTheme.colors.primary,
-                        textAlign = TextAlign.End,
+                propertiesList.forEachIndexed { index, property ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
-                    )
-                    propertiesList.forEachIndexed { index, item ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = item.first.uppercase(),
-                                color = MaterialTheme.colors.primary,
-                                style = MaterialTheme.typography.button,
-                                modifier = Modifier
-                                    .weight(0.3f)
-                                    .alignByBaseline()
-                            )
-                            Text(
-                                text = item.second,
-                                modifier = Modifier
-                                    .weight(0.7f)
-                                    .alignByBaseline()
-                            )
-                        }
-                        if (index < propertiesList.lastIndex)
-                            Divider(Modifier.padding(4.dp))
+                    ) {
+                        Text(
+                            text = property.first.uppercase(),
+                            color = item.lightColor(),
+                            style = MaterialTheme.typography.button,
+                            modifier = Modifier
+                                .weight(0.3f)
+                                .alignByBaseline()
+                        )
+                        Text(
+                            text = property.second,
+                            modifier = Modifier
+                                .weight(0.7f)
+                                .alignByBaseline()
+                        )
                     }
+                    if (index < propertiesList.lastIndex)
+                        Divider(Modifier.padding(4.dp))
                 }
             }
         }
@@ -244,30 +276,6 @@ fun ItemDetailScreen(
             confirmText = "Delete",
             content = { Text("Are you sure ?") }
         )
-    }
-
-    if (nameEditDialog) {
-        var editName by rememberSaveable(name) { mutableStateOf(name) }
-        Dialog(
-            title = "Edit name",
-            onDismiss = {
-                nameEditDialog = false
-                editName = name
-            },
-            onConfirm = {
-                nameEditDialog = false
-                name = editName
-                modified = true
-            }
-        ) {
-            AutoFocusingOutlinedText(
-                label = "Name",
-                value = editName,
-                onValueChange = { editName = it },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
     }
 
     if (descriptionEditDialog) {
@@ -350,6 +358,44 @@ fun ItemDetailScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SlantedSurface(
+    title: String = "",
+    titleColor: Color = MaterialTheme.colors.primary,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        shape = quadrilateralShape(
+            cornerSizes(4.dp),
+            angles(horizontal = MaterialTheme.shapes.angle)
+        ),
+        elevation = 1.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .clickable { onClick() }
+                .padding(16.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.h5,
+                color = titleColor,
+                textAlign = TextAlign.End,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-4).dp)
+                    .rotate(MaterialTheme.shapes.angle)
+            )
+            content()
         }
     }
 }

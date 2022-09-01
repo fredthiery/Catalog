@@ -40,24 +40,27 @@ fun TransparentScaffold(
 
             content(PaddingValues(0.dp))
 
-            val topPadding = WindowInsets.systemBars
-                .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal).asPaddingValues()
-            val bottomPadding = WindowInsets.systemBars
-                .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues()
+//            val topPadding = WindowInsets.systemBars
+//                .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal).asPaddingValues()
+//            val bottomPadding = WindowInsets.systemBars
+//                .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues()
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(topPadding)
+                    .systemBarsPadding()
+//                    .padding(topPadding)
             ) { topBar() }
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottomPadding)
+                    .systemBarsPadding()
+//                    .padding(bottomPadding)
             ) { bottomBar() }
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottomPadding)
+                    .systemBarsPadding()
+//                    .padding(bottomPadding)
             ) { floatingActionButton() }
         }
     }

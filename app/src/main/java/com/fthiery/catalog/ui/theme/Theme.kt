@@ -32,7 +32,7 @@ val shapes = Shapes(
 )
 
 val Shapes.angle: Float
-    get() = -7.0f
+    get() = -5.0f
 
 @Composable
 fun CatalogTheme(

@@ -2,8 +2,10 @@ package com.fthiery.catalog.repositories
 
 import com.fthiery.catalog.datasources.ItemDAO
 import com.fthiery.catalog.datasources.UnsplashApiService
+import com.fthiery.catalog.datasources.WikipediaApiService
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
+import com.fthiery.catalog.models.Search
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -15,7 +17,8 @@ import kotlin.random.Random
 @Singleton
 class ItemRepositoryImpl @Inject constructor(
     private val itemDAO: ItemDAO,
-    private val unsplash: UnsplashApiService = UnsplashApiService.create()
+    private val unsplash: UnsplashApiService = UnsplashApiService.create(),
+    private val wiki: WikipediaApiService = WikipediaApiService.create()
 ) : ItemRepository {
     override val collections: Flow<List<ItemCollection>> = itemDAO.getCollections()
 
@@ -63,5 +66,9 @@ class ItemRepositoryImpl @Inject constructor(
         val results = unsplash.searchPhotos(query).results
         val index = if (results.isNotEmpty()) Random.nextInt(results.size) else 0
         return results.getOrNull(index)?.urls?.regular
+    }
+
+    override suspend fun getSuggestions(query: String): List<Search> {
+        return wiki.search(query).query?.search ?: listOf()
     }
 }

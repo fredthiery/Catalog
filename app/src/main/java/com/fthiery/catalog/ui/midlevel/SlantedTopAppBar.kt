@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -93,7 +94,9 @@ fun SlantedTopAppBar(
                             .weight(1f)
                             .padding(horizontal = 16.dp)
                     ) {
-                        ProvideTextStyle(value = MaterialTheme.typography.h4) {
+                        ProvideTextStyle(
+                            value = MaterialTheme.typography.h4.copy(fontStyle = FontStyle.Italic)
+                        ) {
                             titleContent()
                         }
                     }

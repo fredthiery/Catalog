@@ -2,6 +2,7 @@ package com.fthiery.catalog.repositories
 
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
+import com.fthiery.catalog.models.Search
 import kotlinx.coroutines.flow.Flow
 
 interface ItemRepository {
@@ -26,4 +27,6 @@ interface ItemRepository {
     suspend fun delete(collection: ItemCollection)
 
     suspend fun getPhoto(query: String): String?
+
+    suspend fun getSuggestions(query: String): List<Search>
 }

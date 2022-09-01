@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fthiery.catalog.getBitmapColor
 import com.fthiery.catalog.models.Item
+import com.fthiery.catalog.models.Search
 import com.fthiery.catalog.repositories.ItemRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -22,6 +23,8 @@ class ItemDetailViewModel @Inject constructor(
 
     var item by mutableStateOf(Item())
     var displayPhoto by mutableStateOf<Uri?>(null)
+    var suggestions by mutableStateOf<List<Search>>(listOf())
+    var previousQuery = ""
 
     fun selectItem(itemId: Long? = null, collectionId: Long? = null) =
         viewModelScope.launch {
@@ -45,6 +48,16 @@ class ItemDetailViewModel @Inject constructor(
             repository.delete(item)
             onComplete()
         }
+
+    fun getSuggestions(query: String, onComplete: () -> Unit) = viewModelScope.launch {
+        if (query.length > 5) {
+            if (query != previousQuery) {
+                suggestions = repository.getSuggestions(query)
+                previousQuery = query
+            }
+            onComplete()
+        } else suggestions = listOf()
+    }
 
     private suspend fun Item.setColors(context: Context) {
         if (photos.isNotEmpty()) {

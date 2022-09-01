@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.fthiery.catalog.datasources.ItemDAO
 import com.fthiery.catalog.datasources.ItemDB
 import com.fthiery.catalog.datasources.UnsplashApiService
+import com.fthiery.catalog.datasources.WikipediaApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,5 +36,10 @@ class DBModule {
     @Provides
     fun provideUnsplashApiService(): UnsplashApiService {
         return UnsplashApiService.create()
+    }
+
+    @Provides
+    fun provideWikipediaApiService(): WikipediaApiService {
+        return WikipediaApiService.create()
     }
 }

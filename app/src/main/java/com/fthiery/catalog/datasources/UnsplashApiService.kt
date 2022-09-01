@@ -13,11 +13,11 @@ interface UnsplashApiService {
 
     companion object {
         fun create(): UnsplashApiService {
-            val retrofit: Retrofit = Retrofit.Builder()
+            return Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-            return retrofit.create(UnsplashApiService::class.java)
+                .create(UnsplashApiService::class.java)
         }
     }
 }
