@@ -5,7 +5,6 @@ import android.graphics.Color.HSVToColor
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.graphics.ColorUtils.HSLToColor
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,7 +44,7 @@ class CollectionViewModel @Inject constructor(
             collectionToSave.photo = photo.toUri()
         } else {
             val hue = Random.nextFloat() * 360
-            collectionToSave.color = HSVToColor(floatArrayOf(hue,0.6f,0.9f))
+            collectionToSave.color = HSVToColor(floatArrayOf(hue, 0.6f, 0.9f))
         }
         collectionToSave.lastUpdated = Calendar.getInstance()
         onComplete(repository.insert(collectionToSave))

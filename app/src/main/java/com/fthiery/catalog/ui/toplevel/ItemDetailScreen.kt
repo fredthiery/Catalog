@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,19 +24,22 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.fthiery.catalog.*
 import com.fthiery.catalog.R
+import com.fthiery.catalog.contentColor
+import com.fthiery.catalog.copyToInternalStorage
+import com.fthiery.catalog.noRippleClickable
 import com.fthiery.catalog.ui.baselevel.*
 import com.fthiery.catalog.ui.dialogs.Dialog
 import com.fthiery.catalog.ui.midlevel.PhotoCardRow
 import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
 import com.fthiery.catalog.ui.midlevel.TransparentScaffold
-import com.fthiery.catalog.ui.theme.angle
+import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -53,20 +55,15 @@ fun ItemDetailScreen(
     var description by rememberSaveable(item.description) { mutableStateOf(item.description) }
 
     var deleteConfirmationDialog by remember { mutableStateOf(false) }
-    var nameEditDialog by rememberSaveable { mutableStateOf(false) }
     var nameEdit by remember { mutableStateOf(false) }
     var descriptionEditDialog by rememberSaveable { mutableStateOf(false) }
     var propertiesEditDialog by rememberSaveable { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
 
     /* TODO: Ajouter un dialog de confirmation si des changements ne sont pas sauvegardés */
     BackHandler { navController.navigateUp() }
 
     TransparentScaffold(
-        modifier = Modifier.clickable(
-            indication = null,
-            interactionSource = interactionSource
-        ) { nameEdit = false },
+        modifier = Modifier.noRippleClickable { nameEdit = false },
         topBar = {
             TopAppBar(
                 title = {},
@@ -130,7 +127,7 @@ fun ItemDetailScreen(
                 .padding(bottom = 8.dp)
         ) {
             SlantedTopAppBar(
-                angleDegrees = MaterialTheme.shapes.angle,
+                angleDegrees = GLOBAL_ANGLE,
                 backgroundImage = item.photos.getOrNull(0),
                 backgroundColor = item.backgroundColor(),
                 onTitleClick = { nameEdit = true }
@@ -156,11 +153,13 @@ fun ItemDetailScreen(
                             var textFieldValue by rememberSaveable(name) { mutableStateOf(name) }
                             var suggestionsExpanded by remember { mutableStateOf(false) }
                             val suggestions by mutableStateOf(viewModel.suggestions)
+
                             BackHandler { nameEdit = false }
 
                             ExposedDropdownMenuBox(
                                 expanded = suggestionsExpanded,
-                                onExpandedChange = { suggestionsExpanded = !suggestionsExpanded }) {
+                                onExpandedChange = { suggestionsExpanded = !suggestionsExpanded }
+                            ) {
                                 AutoFocusingBasicText(
                                     value = textFieldValue,
                                     onValueChange = {
@@ -208,6 +207,7 @@ fun ItemDetailScreen(
             PhotoCardRow(
                 photos = photos,
                 color = item.lightColor(),
+                angleDegrees = GLOBAL_ANGLE,
                 onNewPhoto = { uri, context ->
                     copyToInternalStorage(uri, context)?.let {
                         photos.add(it)
@@ -245,7 +245,8 @@ fun ItemDetailScreen(
                         Text(
                             text = property.first.uppercase(),
                             color = item.lightColor(),
-                            style = MaterialTheme.typography.button,
+                            style = MaterialTheme.typography.overline,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .weight(0.3f)
                                 .alignByBaseline()
@@ -372,7 +373,7 @@ fun SlantedSurface(
     Surface(
         shape = quadrilateralShape(
             cornerSizes(4.dp),
-            angles(horizontal = MaterialTheme.shapes.angle)
+            angles(horizontal = GLOBAL_ANGLE)
         ),
         elevation = 1.dp,
         modifier = Modifier
@@ -393,7 +394,7 @@ fun SlantedSurface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset(y = (-4).dp)
-                    .rotate(MaterialTheme.shapes.angle)
+                    .rotate(GLOBAL_ANGLE)
             )
             content()
         }

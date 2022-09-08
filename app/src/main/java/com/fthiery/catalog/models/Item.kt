@@ -1,14 +1,18 @@
 package com.fthiery.catalog.models
 
-import android.graphics.Color.rgb
 import android.net.Uri
 import androidx.annotation.ColorInt
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.fthiery.catalog.setSL
 import java.util.*
 
 @Entity
-data class Item(
+class Item(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
     var name: String = "",
     var collectionId: Long = 0,
@@ -17,5 +21,5 @@ data class Item(
     var lastUpdated: Calendar? = null,
     var properties: MutableMap<String, String> = mutableMapOf(),
     var photos: List<Uri> = listOf(),
-    @ColorInt var color: Int? = null
-)
+    @ColorInt color: Int? = null
+) : Colored(color)

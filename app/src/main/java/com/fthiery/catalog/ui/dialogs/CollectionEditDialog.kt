@@ -14,11 +14,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fthiery.catalog.R
-import com.fthiery.catalog.models.ItemCollection
 import com.fthiery.catalog.ui.baselevel.angles
 import com.fthiery.catalog.ui.baselevel.cornerSizes
 import com.fthiery.catalog.ui.baselevel.quadrilateralShape
-import com.fthiery.catalog.ui.theme.angle
+import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.CollectionViewModel
 
 @Composable
@@ -33,7 +32,7 @@ fun CollectionEditDialog(
     Surface(
         shape = quadrilateralShape(
             cornerSizes(topStart = 32.dp, bottomEnd = 32.dp, default = 12.dp),
-            angles(horizontal = MaterialTheme.shapes.angle)
+            angles(horizontal = GLOBAL_ANGLE)
         )
     ) {
         Column(
@@ -45,7 +44,7 @@ fun CollectionEditDialog(
                     else R.string.add_a_collection
                 ),
                 style = MaterialTheme.typography.h6,
-                modifier = Modifier.rotate(MaterialTheme.shapes.angle)
+                modifier = Modifier.rotate(GLOBAL_ANGLE)
             )
             OutlinedTextField(
                 value = name,
@@ -53,22 +52,22 @@ fun CollectionEditDialog(
                 label = { Text("Collection name") },
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
-                    angles(vertical = MaterialTheme.shapes.angle)
+                    angles(vertical = GLOBAL_ANGLE)
                 ),
-                modifier = Modifier.rotate(MaterialTheme.shapes.angle),
+                modifier = Modifier.rotate(GLOBAL_ANGLE),
                 textStyle = MaterialTheme.typography.body1
             )
             Spacer(Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier
-                    .rotate(MaterialTheme.shapes.angle)
+                    .rotate(GLOBAL_ANGLE)
                     .fillMaxWidth()
             ) {
                 Button(
                     shape = quadrilateralShape(
                         cornerSizes(4.dp),
-                        angles(vertical = MaterialTheme.shapes.angle)
+                        angles(vertical = GLOBAL_ANGLE)
                     ),
                     onClick = { navController.navigateUp() }
                 ) {
@@ -78,7 +77,7 @@ fun CollectionEditDialog(
                 Button(
                     shape = quadrilateralShape(
                         cornerSizes(bottomEnd = 20.dp, default = 4.dp),
-                        angles(vertical = MaterialTheme.shapes.angle)
+                        angles(vertical = GLOBAL_ANGLE)
                     ),
                     onClick = {
                         viewModel.editCollection.name = name

@@ -1,8 +1,13 @@
 package com.fthiery.catalog.ui.toplevel
 
-import androidx.compose.animation.*
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.dialog
 import com.fthiery.catalog.ui.dialogs.CollectionDeleteDialog
@@ -13,7 +18,7 @@ import com.fthiery.catalog.viewmodels.MainViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NavHost(
     navController: NavHostController,
@@ -87,10 +92,9 @@ fun NavHost(
             )
         }
         /* TODO: Should be a dialog */
-        composable(
+        dialog(
             "DisplayPhoto",
-            enterTransition = { scaleIn() },
-            exitTransition = { scaleOut() }
+            dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             PhotoScreen(
                 viewModel = itemDetailViewModel,

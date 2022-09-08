@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fthiery.catalog.R
-import com.fthiery.catalog.backgroundColor
 import com.fthiery.catalog.contentColor
+import com.fthiery.catalog.degreesOffset
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.rememberForeverLazyGridState
 import com.fthiery.catalog.ui.baselevel.multifab.MultiFabItem
@@ -40,11 +40,9 @@ import com.fthiery.catalog.ui.midlevel.ItemCard
 import com.fthiery.catalog.ui.midlevel.SearchAppBar
 import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
 import com.fthiery.catalog.ui.midlevel.TransparentScaffold
-import com.fthiery.catalog.ui.theme.angle
+import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
-import kotlin.math.PI
-import kotlin.math.sin
 
 @Composable
 fun HomeScreen(
@@ -66,8 +64,6 @@ fun HomeScreen(
     val scrollState = rememberForeverLazyGridState(key = collection?.name)
     val scope = rememberCoroutineScope()
 
-    val angleOffset = sin(MaterialTheme.shapes.angle * PI / 180).toFloat()
-
     LaunchedEffect(collectionId, searchPattern) {
         viewModel.getItems(collectionId, searchPattern).collect {
             /* TODO: Comparer les deux listes et supprimer ou ajouter les items différents */
@@ -81,7 +77,8 @@ fun HomeScreen(
         topBar = {
             AnimatedVisibility(collections.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
                 SearchAppBar(
-                    contentColor = collection?.backgroundColor()?.contentColor() ?: MaterialTheme.colors.onSurface,
+                    contentColor = collection?.backgroundColor()?.contentColor()
+                        ?: MaterialTheme.colors.onSurface,
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, "Open navigation drawer")
@@ -116,6 +113,7 @@ fun HomeScreen(
                 DrawerContent(
                     viewModel = viewModel,
                     navController = navController,
+                    angleDegrees = GLOBAL_ANGLE,
                     items = collections.values.toList(),
                     collectionId = collection?.id,
                     onItemClick = {
@@ -151,11 +149,12 @@ fun HomeScreen(
                         var offset by remember { mutableStateOf(0) }
                         Box(modifier = Modifier
                             .onGloballyPositioned {
-                                offset = (it.positionInParent().x * angleOffset).toInt()
+                                offset =
+                                    (it.positionInParent().x * GLOBAL_ANGLE.degreesOffset()).toInt()
                             }
                             .offset { IntOffset(0, offset) }
                         ) {
-                            ItemCard(item, onItemSelect)
+                            ItemCard(item, GLOBAL_ANGLE, onItemSelect)
                         }
                     }
                 }
@@ -163,7 +162,7 @@ fun HomeScreen(
         }
 
         SlantedTopAppBar(
-            angleDegrees = MaterialTheme.shapes.angle,
+            angleDegrees = GLOBAL_ANGLE,
             scrolled = scrollState.firstVisibleItemIndex > 0,
             backgroundImage = collection?.photo ?: R.drawable.stripes,
             backgroundColor = collection?.backgroundColor() ?: MaterialTheme.colors.surface
@@ -174,6 +173,7 @@ fun HomeScreen(
         }
 
 // TODO: utiliser un Dialog
+        val backgroundColor = collection?.backgroundColor() ?: MaterialTheme.colors.secondary
         MultiFloatingActionButton(
             modifier = Modifier.systemBarsPadding(),
             fabIcon = Icons.Filled.Add,
@@ -195,6 +195,9 @@ fun HomeScreen(
                     )
             },
             extended = extendedFab,
+            backgroundColor = backgroundColor,
+            contentColor = backgroundColor.contentColor(),
+            angle = GLOBAL_ANGLE,
             stateChanged = { extendedFab = it }
         ) { fabItem ->
             when (fabItem.identifier) {

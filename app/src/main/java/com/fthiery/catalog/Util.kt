@@ -5,13 +5,16 @@ import android.graphics.Color.rgb
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.ColorInt
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.core.graphics.ColorUtils.HSLToColor
@@ -21,12 +24,13 @@ import androidx.core.net.toUri
 import androidx.palette.graphics.Palette
 import coil.imageLoader
 import coil.request.ImageRequest
-import com.fthiery.catalog.models.Item
-import com.fthiery.catalog.models.ItemCollection
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.lang.Float.min
 import java.util.*
 import kotlin.coroutines.resume
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.sin
 
 fun copyToInternalStorage(uri: Uri?, context: Context): Uri? {
     if (uri == null) return null
@@ -109,6 +113,10 @@ fun rememberForeverLazyGridState(
     return scrollState
 }
 
+fun Float.toRad(): Float = (this * PI / 180).toFloat()
+fun Float.degreesOffset(): Float = sin(this.toRad())
+fun Float.absDegOffset(): Float = sin(abs(this.toRad()))
+
 @ColorInt
 suspend fun getBitmapColor(path: String, context: Context): Int {
     val drawable = context.imageLoader.execute(
@@ -141,46 +149,21 @@ private suspend fun getColor(drawable: Drawable?): Int {
     return rgb(255, 255, 255)
 }
 
-@Composable
-fun ItemCollection.backgroundColor(): Color {
-    color?.let {
-        return if (isSystemInDarkTheme()) Color(it.setSL(.6f, .3f))
-        else Color(it.setSL(.8f, .6f))
-    }
-    return MaterialTheme.colors.surface
-}
-
-@Composable
-fun Item.backgroundColor(): Color {
-        return if (isSystemInDarkTheme()) darkColor()
-        else lightColor()
-}
-
-@Composable
-fun Item.lightColor(): Color {
-    color?.let {
-        return Color(it.setSL(.8f, .6f))
-    }
-    return MaterialTheme.colors.primary
-}
-
-@Composable
-fun Item.darkColor(): Color {
-    color?.let {
-        return Color(it.setSL(.6f, .3f))
-    }
-    return MaterialTheme.colors.primary
-}
-
-
 @ColorInt
-private fun Int.setSL(saturation: Float? = null, luminance: Float? = null): Int {
+fun Int.setSL(saturation: Float? = null, luminance: Float? = null): Int {
     val hsv = FloatArray(3)
     colorToHSL(this, hsv)
-    return HSLToColor(floatArrayOf(hsv[0], min(hsv[1],saturation ?: hsv[1]), luminance ?: hsv[2]))
+    return HSLToColor(floatArrayOf(hsv[0], min(hsv[1], saturation ?: hsv[1]), luminance ?: hsv[2]))
 }
 
 fun Color.contentColor(): Color {
     return if (this.luminance() > 0.4) Color.Black
     else Color.White
+}
+
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+    clickable(indication = null,
+        interactionSource = remember { MutableInteractionSource() }) {
+        onClick()
+    }
 }

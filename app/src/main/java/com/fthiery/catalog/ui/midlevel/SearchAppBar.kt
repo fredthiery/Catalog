@@ -17,7 +17,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -25,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.fthiery.catalog.R
 import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.ui.baselevel.AutoFocusingBasicText
-import com.fthiery.catalog.viewmodels.MainViewModel
 
 @Composable
 fun SearchAppBar(
@@ -43,7 +41,9 @@ fun SearchAppBar(
     }
 
     Box(
-        modifier = modifier.fillMaxWidth().height(56.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
     ) {
         val padding by animateFloatAsState(if (searching) 0f else 1f)
         Surface(

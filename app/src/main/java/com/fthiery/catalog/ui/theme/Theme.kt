@@ -6,8 +6,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.fthiery.catalog.ui.baselevel.Angles
+import com.fthiery.catalog.degreesOffset
+import com.fthiery.catalog.toRad
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlin.math.abs
+import kotlin.math.sin
 
 val lightTheme = lightColors(
     primary = Color(38, 198, 218, 255),
@@ -31,8 +34,7 @@ val shapes = Shapes(
     large = RoundedCornerShape(16.dp)
 )
 
-val Shapes.angle: Float
-    get() = -5.0f
+const val GLOBAL_ANGLE = -5.0f
 
 @Composable
 fun CatalogTheme(

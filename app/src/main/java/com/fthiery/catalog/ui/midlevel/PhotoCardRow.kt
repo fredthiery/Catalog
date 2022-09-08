@@ -2,7 +2,6 @@ package com.fthiery.catalog.ui.midlevel
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -23,21 +22,22 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.fthiery.catalog.BuildConfig
 import com.fthiery.catalog.R
+import com.fthiery.catalog.absDegOffset
+import com.fthiery.catalog.degreesOffset
 import com.fthiery.catalog.ui.baselevel.*
-import com.fthiery.catalog.ui.theme.angle
-import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.sin
 
 @Composable
 fun PhotoCardRow(
     modifier: Modifier = Modifier,
     photos: List<Uri> = listOf(),
     color: Color = MaterialTheme.colors.primary,
+    angleDegrees: Float = 0f,
     onNewPhoto: (Uri, Context) -> Unit,
     onClick: (Uri) -> Unit
 ) {
     val context = LocalContext.current
+    val offset = angleDegrees.absDegOffset() + 1
 
     // Provides a temp Content Uri for the TakePicture contract
     val tmpUri: Uri = FileProvider.getUriForFile(
@@ -52,19 +52,17 @@ fun PhotoCardRow(
         onNewPhoto(tmpUri, context)
     }
 
-    val angle = MaterialTheme.shapes.angle
     val photoCardSize = 128
 
-    fun Float.toRad(): Double = this * PI / 180
-    val offset = 1 + sin(abs(angle.toRad()))
     val rowHeight = photoCardSize * offset
-    val widthDp = LocalConfiguration.current.screenWidthDp
-    val width = (widthDp / sin((90f - abs(angle)).toRad())) + (sin(abs(angle).toRad()) * rowHeight)
+    val widthOffset = (90f - abs(angleDegrees)).degreesOffset()
+    val heightOffset = angleDegrees.absDegOffset() * rowHeight
+    val width =  LocalConfiguration.current.screenWidthDp / widthOffset + heightOffset
 
     LazyRow(
         modifier = modifier
             .requiredWidth(width.dp)
-            .rotate(angle),
+            .rotate(angleDegrees),
         contentPadding = WindowInsets.systemBars
             .only(WindowInsetsSides.Horizontal)
             .add(WindowInsets(left = 14.dp, right = 14.dp))
@@ -77,10 +75,10 @@ fun PhotoCardRow(
                     .clickable { onClick(photo) }
                     .width(photoCardSize.dp)
                     .height(rowHeight.dp)
-                    .rotate(-angle),
+                    .rotate(-angleDegrees),
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
-                    angles(horizontal = angle)
+                    angles(horizontal = angleDegrees)
                 )
             ) {
                 AsyncImage(
@@ -99,10 +97,10 @@ fun PhotoCardRow(
                     .clickable { dropdownExpanded = true }
                     .width(photoCardSize.dp)
                     .height(rowHeight.dp)
-                    .rotate(-angle),
+                    .rotate(-angleDegrees),
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
-                    angles(horizontal = angle)
+                    angles(horizontal = angleDegrees)
                 )
             ) {
                 Icon(

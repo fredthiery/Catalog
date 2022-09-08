@@ -1,8 +1,11 @@
 package com.fthiery.catalog.ui.dialogs
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -11,7 +14,7 @@ import androidx.navigation.NavController
 import com.fthiery.catalog.ui.baselevel.angles
 import com.fthiery.catalog.ui.baselevel.cornerSizes
 import com.fthiery.catalog.ui.baselevel.quadrilateralShape
-import com.fthiery.catalog.ui.theme.angle
+import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.CollectionViewModel
 
 @Composable
@@ -20,7 +23,7 @@ fun CollectionDeleteDialog(
     navController: NavController,
     onComplete: () -> Unit = {}
 ) {
-    val angle = MaterialTheme.shapes.angle
+    val angle = GLOBAL_ANGLE
     Surface(
         shape = quadrilateralShape(
             cornerSizes(topStart = 32.dp, bottomEnd = 32.dp, default = 12.dp),

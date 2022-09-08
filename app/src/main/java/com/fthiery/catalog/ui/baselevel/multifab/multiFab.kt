@@ -12,9 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.fthiery.catalog.ui.theme.angle
 import com.fthiery.catalog.ui.theme.scrimColor
 
 @Composable
@@ -23,6 +23,9 @@ fun MultiFloatingActionButton(
     modifier: Modifier = Modifier,
     items: List<MultiFabItem>,
     extended: Boolean,
+    backgroundColor: Color = MaterialTheme.colors.secondary,
+    contentColor: Color = MaterialTheme.colors.onSecondary,
+    angle: Float = 0f,
     stateChanged: (extended: Boolean) -> Unit,
     onFabItemClicked: (item: MultiFabItem) -> Unit
 ) {
@@ -59,15 +62,23 @@ fun MultiFloatingActionButton(
                 enter = slideInVertically { it * (items.size - index) } + fadeIn(),
                 exit = slideOutVertically { it * (items.size - index) } + fadeOut()
             ) {
-                MiniFabItem(item, onFabItemClicked)
+                MiniFabItem(
+                    item = item,
+                    backgroundColor = backgroundColor,
+                    contentColor = contentColor,
+                    angle = angle,
+                    onFabItemClicked = onFabItemClicked
+                )
             }
         }
         FloatingActionButton(
             onClick = { stateChanged(!extended) },
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Icon(
-                tint = MaterialTheme.colors.onSecondary,
+                tint = contentColor,
                 imageVector = fabIcon,
                 contentDescription = if (extended) "Close" else "Add item",
                 modifier = Modifier.rotate(rotation)
@@ -79,13 +90,17 @@ fun MultiFloatingActionButton(
 @Composable
 private fun MiniFabItem(
     item: MultiFabItem,
+    backgroundColor: Color = MaterialTheme.colors.secondary,
+    contentColor: Color = MaterialTheme.colors.onSecondary,
+    angle: Float = 0f,
     onFabItemClicked: (item: MultiFabItem) -> Unit
 ) {
     ExtendedFloatingActionButton(
         modifier = Modifier
-            .rotate(MaterialTheme.shapes.angle)
+            .rotate(angle)
             .padding(vertical = 16.dp),
-        contentColor = MaterialTheme.colors.onSecondary,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
         text = { Text(item.label) },
         icon = { Icon(item.icon, null) },
         onClick = { onFabItemClicked(item) }

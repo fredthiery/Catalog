@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -25,7 +24,6 @@ import com.fthiery.catalog.ui.baselevel.CornerSizes
 import com.fthiery.catalog.ui.baselevel.angles
 import com.fthiery.catalog.ui.baselevel.cornerSizes
 import com.fthiery.catalog.ui.baselevel.quadrilateralShape
-import com.fthiery.catalog.ui.theme.angle
 import java.util.*
 
 @Composable
@@ -37,7 +35,7 @@ fun DrawerItem(
     itemColor: Color,
     label: String = "",
     tag: String? = null,
-    angle: Float = 0f,
+    angleDegrees: Float = 0f,
     corners: CornerSizes = cornerSizes(),
     button: @Composable (RowScope.() -> Unit) = {},
     onClick: () -> Unit = {}
@@ -49,11 +47,11 @@ fun DrawerItem(
             .height(height.dp)
             .padding(vertical = 4.dp)
             .rotate(
-                if (Locale.getDefault().layoutDirection == RTL) -angle
-                else angle
+                if (Locale.getDefault().layoutDirection == RTL) -angleDegrees
+                else angleDegrees
             )
             .fillMaxWidth(),
-        shape = quadrilateralShape(corners, angles(vertical = angle)),
+        shape = quadrilateralShape(corners, angles(vertical = angleDegrees)),
         color = backgroundColor,
         contentColor = backgroundColor.contentColor(),
         border = null
@@ -66,7 +64,7 @@ fun DrawerItem(
             alpha = 0.2f,
             modifier = Modifier
                 .requiredHeight(192.dp)
-                .rotate(-MaterialTheme.shapes.angle)
+                .rotate(-angleDegrees)
         )
         Row(
             Modifier

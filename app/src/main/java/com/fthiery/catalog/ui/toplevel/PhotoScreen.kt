@@ -1,10 +1,8 @@
 package com.fthiery.catalog.ui.toplevel
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -15,6 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.fthiery.catalog.noRippleClickable
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
 import com.google.accompanist.insets.ui.TopAppBar
 
@@ -23,14 +22,12 @@ fun PhotoScreen(
     viewModel: ItemDetailViewModel,
     navController: NavController
 ) {
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Black)
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .noRippleClickable { navController.navigateUp() }
     ) {
         AsyncImage(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center).fillMaxSize(),
             model = viewModel.displayPhoto,
             contentDescription = viewModel.item.name,
             contentScale = ContentScale.Fit
