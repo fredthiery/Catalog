@@ -16,6 +16,12 @@ open class Colored(
     }
 
     @Composable
+    fun contentColor(): Color {
+        return if (isSystemInDarkTheme()) lightColor()
+        else darkColor()
+    }
+
+    @Composable
     fun lightColor(): Color {
         color?.let {
             return Color(it.setSL(.8f, .6f))

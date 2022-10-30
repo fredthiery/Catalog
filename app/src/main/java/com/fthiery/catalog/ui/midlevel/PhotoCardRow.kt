@@ -83,7 +83,7 @@ fun PhotoCardRow(
             ) {
                 AsyncImage(
                     model = photo,
-                    contentDescription = "Photo",
+                    contentDescription = stringResource(R.string.photo),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.requiredHeight((rowHeight * offset).dp)
                 )
@@ -117,13 +117,13 @@ fun PhotoCardRow(
                         onClick = {
                             filePickerLauncher.launch("image/*")
                             dropdownExpanded = false
-                        }) { Text("Pick image from storage") }
+                        }) { Text(stringResource(R.string.pick_image_from_storage)) }
 
                     DropdownMenuItem(
                         onClick = {
                             takePictureLauncher.launch(tmpUri)
                             dropdownExpanded = false
-                        }) { Text("Take a photo") }
+                        }) { Text(stringResource(R.string.take_a_photo)) }
                 }
             }
         }

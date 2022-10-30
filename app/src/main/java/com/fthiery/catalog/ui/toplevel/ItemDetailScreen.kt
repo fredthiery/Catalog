@@ -33,6 +33,8 @@ import androidx.navigation.NavController
 import com.fthiery.catalog.R
 import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.copyToInternalStorage
+import com.fthiery.catalog.datasources.wikiparser.WikiTextParser
+import com.fthiery.catalog.models.Search
 import com.fthiery.catalog.noRippleClickable
 import com.fthiery.catalog.ui.baselevel.*
 import com.fthiery.catalog.ui.dialogs.Dialog
@@ -42,7 +44,6 @@ import com.fthiery.catalog.ui.midlevel.TransparentScaffold
 import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ItemDetailScreen(
     viewModel: ItemDetailViewModel,
@@ -58,6 +59,16 @@ fun ItemDetailScreen(
     var nameEdit by remember { mutableStateOf(false) }
     var descriptionEditDialog by rememberSaveable { mutableStateOf(false) }
     var propertiesEditDialog by rememberSaveable { mutableStateOf(false) }
+    var wikipediaSuggestionsDialog by remember { mutableStateOf(false) }
+
+    val buttonColors = ButtonDefaults.textButtonColors(contentColor = item.backgroundColor())
+
+    val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
+        textColor = MaterialTheme.colors.onSurface,
+        cursorColor = item.backgroundColor(),
+        focusedBorderColor = item.backgroundColor(),
+        focusedLabelColor = item.backgroundColor()
+    )
 
     /* TODO: Ajouter un dialog de confirmation si des changements ne sont pas sauvegardés */
     BackHandler { navController.navigateUp() }
@@ -72,22 +83,28 @@ fun ItemDetailScreen(
                 contentColor = item.backgroundColor().contentColor(),
                 navigationIcon = {
                     IconButton(onClick = navController::navigateUp) {
-                        Icon(Icons.Filled.ArrowBack, "Back")
+                        Icon(Icons.Filled.ArrowBack, stringResource(R.string.back))
                     }
                 },
                 actions = {
                     var dropdownExpanded by remember { mutableStateOf(false) }
                     IconButton(onClick = { dropdownExpanded = true }) {
-                        Icon(Icons.Filled.MoreVert, "Menu")
+                        Icon(Icons.Filled.MoreVert, stringResource(R.string.menu))
                     }
                     DropdownMenu(
                         expanded = dropdownExpanded,
                         onDismissRequest = { dropdownExpanded = false }) {
                         DropdownMenuItem(onClick = {
+                            wikipediaSuggestionsDialog = true
+                            dropdownExpanded = false
+                        }) {
+                            Text(stringResource(R.string.fetch_from_wikipedia))
+                        }
+                        DropdownMenuItem(onClick = {
                             deleteConfirmationDialog = true
                             dropdownExpanded = false
                         }) {
-                            Text("Delete this item")
+                            Text(stringResource(R.string.delete_this_item))
                         }
                     }
                 }
@@ -104,11 +121,14 @@ fun ItemDetailScreen(
                 FloatingActionButton(
                     onClick = {
                         // Save the item into the database
+                        // TODO: Si description et détails vides, proposer de les récupérer sur Wikipedia
                         item.name = name
                         item.description = description
                         viewModel.save(item, context)
                         modified = false
                     },
+                    backgroundColor = item.backgroundColor(),
+                    contentColor = item.backgroundColor().contentColor(),
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Icon(
@@ -138,7 +158,7 @@ fun ItemDetailScreen(
                             Crossfade(name.isEmpty()) { empty ->
                                 when (empty) {
                                     true -> Text(
-                                        text = "Name of this item",
+                                        text = stringResource(R.string.name_of_this_item),
                                         style = MaterialTheme.typography.subtitle1,
                                         fontStyle = FontStyle.Italic,
                                         color = item.backgroundColor()
@@ -151,51 +171,26 @@ fun ItemDetailScreen(
                         }
                         true  -> {
                             var textFieldValue by rememberSaveable(name) { mutableStateOf(name) }
-                            var suggestionsExpanded by remember { mutableStateOf(false) }
-                            val suggestions by mutableStateOf(viewModel.suggestions)
 
                             BackHandler { nameEdit = false }
 
-                            ExposedDropdownMenuBox(
-                                expanded = suggestionsExpanded,
-                                onExpandedChange = { suggestionsExpanded = !suggestionsExpanded }
-                            ) {
-                                AutoFocusingBasicText(
-                                    value = textFieldValue,
-                                    onValueChange = {
-                                        textFieldValue = it
-                                        viewModel.getSuggestions(textFieldValue) {
-                                            suggestionsExpanded = suggestions.isNotEmpty()
-                                        }
-                                    },
-                                    textStyle = LocalTextStyle.current
-                                        .copy(color = item.backgroundColor().contentColor()),
-                                    cursorBrush = SolidColor(item.backgroundColor().contentColor()),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    keyboardOptions = KeyboardOptions(
-                                        capitalization = KeyboardCapitalization.Sentences,
-                                        imeAction = ImeAction.Done
-                                    ),
-                                    keyboardActions = KeyboardActions(onDone = {
-                                        nameEdit = false
-                                        name = textFieldValue
-                                        modified = true
-                                    })
-                                )
-                                ExposedDropdownMenu(
-                                    expanded = suggestionsExpanded,
-                                    onDismissRequest = { suggestionsExpanded = false }
-                                ) {
-                                    suggestions.forEach { search ->
-                                        DropdownMenuItem(onClick = {
-                                            textFieldValue = search.title ?: textFieldValue
-                                            suggestionsExpanded = false
-                                        }) {
-                                            Text(search.title ?: "")
-                                        }
-                                    }
-                                }
-                            }
+                            AutoFocusingBasicText(
+                                value = textFieldValue,
+                                onValueChange = { textFieldValue = it },
+                                textStyle = LocalTextStyle.current
+                                    .copy(color = item.backgroundColor().contentColor()),
+                                cursorBrush = SolidColor(item.backgroundColor().contentColor()),
+                                modifier = Modifier.fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                    imeAction = ImeAction.Done
+                                ),
+                                keyboardActions = KeyboardActions(onDone = {
+                                    nameEdit = false
+                                    name = textFieldValue
+                                    modified = true
+                                })
+                            )
                         }
                     }
                 }
@@ -206,7 +201,7 @@ fun ItemDetailScreen(
             photos.addAll(item.photos)
             PhotoCardRow(
                 photos = photos,
-                color = item.lightColor(),
+                color = item.backgroundColor(),
                 angleDegrees = GLOBAL_ANGLE,
                 onNewPhoto = { uri, context ->
                     copyToInternalStorage(uri, context)?.let {
@@ -223,8 +218,8 @@ fun ItemDetailScreen(
 
             // DESCRIPTION
             SlantedSurface(
-                title = "Description",
-                titleColor = item.lightColor(),
+                title = stringResource(R.string.description),
+                titleColor = item.backgroundColor(),
                 onClick = { descriptionEditDialog = true }
             ) {
                 Text(description)
@@ -233,8 +228,8 @@ fun ItemDetailScreen(
             // PROPERTIES
             val propertiesList = item.properties.map { it.key to it.value }
             SlantedSurface(
-                title = "Details",
-                titleColor = item.lightColor(),
+                title = stringResource(R.string.details),
+                titleColor = item.backgroundColor(),
                 onClick = { propertiesEditDialog = true }
             ) {
                 propertiesList.forEachIndexed { index, property ->
@@ -244,7 +239,7 @@ fun ItemDetailScreen(
                     ) {
                         Text(
                             text = property.first.uppercase(),
-                            color = item.lightColor(),
+                            color = item.backgroundColor(),
                             style = MaterialTheme.typography.overline,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
@@ -267,16 +262,16 @@ fun ItemDetailScreen(
 
     if (deleteConfirmationDialog) {
         Dialog(
-            title = "You're about to delete the item ${item.name} !",
+            title = stringResource(id = R.string.about_to_delete_item, item.name),
             onDismiss = { deleteConfirmationDialog = false },
-            dismissText = "Cancel",
+            dismissText = stringResource(R.string.cancel),
             onConfirm = {
                 deleteConfirmationDialog = false
                 viewModel.delete(item) { navController.navigateUp() }
             },
-            confirmText = "Delete",
-            content = { Text("Are you sure ?") }
-        )
+            confirmText = stringResource(R.string.delete),
+            buttonColors = buttonColors
+        ) { Text(stringResource(R.string.are_you_sure)) }
     }
 
     if (descriptionEditDialog) {
@@ -284,7 +279,7 @@ fun ItemDetailScreen(
             mutableStateOf(description)
         }
         Dialog(
-            title = "Edit description",
+            title = stringResource(R.string.edit_description),
             onDismiss = {
                 descriptionEditDialog = false
                 editDescription = description
@@ -293,12 +288,14 @@ fun ItemDetailScreen(
                 descriptionEditDialog = false
                 description = editDescription
                 modified = true
-            }
+            },
+            buttonColors = buttonColors
         ) {
             AutoFocusingOutlinedText(
-                label = "Description",
+                label = stringResource(id = R.string.description),
                 value = editDescription,
                 onValueChange = { editDescription = it },
+                colors = textFieldColors,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 120.dp)
@@ -306,11 +303,47 @@ fun ItemDetailScreen(
         }
     }
 
+    if (wikipediaSuggestionsDialog) {
+        var wikiArticleTitle by mutableStateOf<String?>(null)
+        Dialog(
+            title = stringResource(R.string.wikipedia_suggestions_title),
+            onDismiss = { wikipediaSuggestionsDialog = false },
+            onConfirm = {
+                // If a suggestion has been selected, get the details
+                wikiArticleTitle?.let { viewModel.getDetails(it) }
+                wikipediaSuggestionsDialog = false
+            },
+            buttonColors = buttonColors
+        ) {
+            var suggestions by mutableStateOf<List<Search>>(listOf())
+            viewModel.getSuggestions(name) { suggestions = it }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                suggestions.forEach { suggestion ->
+                    Card(
+                        elevation = 0.dp,
+                        backgroundColor = if (wikiArticleTitle == suggestion.title) item.backgroundColor() else Color.Transparent,
+                        contentColor = if (wikiArticleTitle == suggestion.title) item.backgroundColor()
+                            .contentColor() else MaterialTheme.colors.onSurface,
+                        modifier = Modifier.clickable { wikiArticleTitle = suggestion.title }
+                    ) {
+                        Column(modifier = Modifier.padding(4.dp)) {
+                            Text(text = suggestion.title ?: "")
+                            Text(
+                                text = WikiTextParser(suggestion.snippet ?: "").parse().toString(),
+                                style = MaterialTheme.typography.caption
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if (propertiesEditDialog) {
         val properties = remember { mutableStateListOf<Pair<String, String>>() }
         properties.addAll(item.properties.map { it.key to it.value })
         Dialog(
-            title = "Edit details",
+            title = stringResource(R.string.edit_details),
             onDismiss = { propertiesEditDialog = false },
             onConfirm = {
                 propertiesEditDialog = false
@@ -318,7 +351,8 @@ fun ItemDetailScreen(
                 properties.forEach {
                     item.properties[it.first] = it.second
                 }
-            }
+            },
+            buttonColors = buttonColors
         ) {
             var newProperty by remember { mutableStateOf(false) }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -331,6 +365,7 @@ fun ItemDetailScreen(
                             properties[index] = item.first to value
                         },
                         label = { Text(item.first) },
+                        colors = textFieldColors,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -344,18 +379,25 @@ fun ItemDetailScreen(
                         AutoFocusingOutlinedText(
                             value = newPropertyName,
                             onValueChange = { newPropertyName = it },
-                            label = "Custom field name",
+                            label = stringResource(R.string.custom_field_name),
+                            colors = textFieldColors,
                             modifier = Modifier.weight(1f)
                         )
-                        TextButton(onClick = {
-                            properties.add(newPropertyName to "")
-                            /* TODO: mettre le focus sur le nouveau champ */
-                            newProperty = false
-                        }) {
-                            Text("Add field".uppercase())
+                        TextButton(
+                            onClick = {
+                                properties.add(newPropertyName to "")
+                                /* TODO: mettre le focus sur le nouveau champ */
+                                newProperty = false
+                            },
+                            colors = buttonColors
+                        ) {
+                            Text(stringResource(R.string.add_field).uppercase())
                         }
-                    } else TextButton(onClick = { newProperty = true }) {
-                        Text("New Custom field".uppercase())
+                    } else TextButton(
+                        onClick = { newProperty = true },
+                        colors = buttonColors
+                    ) {
+                        Text(stringResource(R.string.new_custom_field).uppercase())
                     }
                 }
             }

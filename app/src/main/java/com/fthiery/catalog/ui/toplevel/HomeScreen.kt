@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.painterResource
@@ -81,14 +82,14 @@ fun HomeScreen(
                         ?: MaterialTheme.colors.onSurface,
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, "Open navigation drawer")
+                            Icon(Icons.Filled.Menu, stringResource(R.string.open_navigation_drawer))
                         }
                     },
                     actions = {
                         /* TODO : Peut-être faire un composable dédié réutilisable */
                         var dropdownExpanded by remember { mutableStateOf(false) }
                         IconButton(onClick = { dropdownExpanded = true }) {
-                            Icon(Icons.Filled.MoreVert, "Menu")
+                            Icon(Icons.Filled.MoreVert, stringResource(R.string.menu))
                         }
                         DropdownMenu(
                             expanded = dropdownExpanded,
@@ -98,7 +99,7 @@ fun HomeScreen(
                                     navController.navigate("DeleteCollection/${collection.id}")
                                     dropdownExpanded = false
                                 }) {
-                                    Text("Delete this collection")
+                                    Text(stringResource(R.string.delete_this_collection))
                                 }
                             }
                         }
@@ -131,7 +132,8 @@ fun HomeScreen(
                 true  -> EmptyScreen(
                     noCollection = collections.isEmpty(),
                     onNewItem = { collection?.let { onNewItem(it.id) } },
-                    onNewCollection = { navController.navigate("NewCollection") }
+                    onNewCollection = { navController.navigate("NewCollection") },
+                    color = collection?.contentColor() ?: MaterialTheme.colors.primary
                 )
                 false -> LazyVerticalGrid(
                     columns = GridCells.Adaptive(160.dp),
@@ -210,7 +212,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun EmptyScreen(noCollection: Boolean, onNewItem: () -> Unit, onNewCollection: () -> Unit) {
+fun EmptyScreen(
+    noCollection: Boolean,
+    onNewItem: () -> Unit,
+    onNewCollection: () -> Unit,
+    color: Color = MaterialTheme.colors.primary
+) {
     Surface {
         Column(
             modifier = Modifier
@@ -233,9 +240,10 @@ fun EmptyScreen(noCollection: Boolean, onNewItem: () -> Unit, onNewCollection: (
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("No collection found !")
-                            Text("Create a collection to start",
-                                color = MaterialTheme.colors.primary,
+                            Text(stringResource(R.string.no_collection_found))
+                            Text(
+                                stringResource(R.string.create_a_collection_to_start),
+                                color = color,
                                 modifier = Modifier.clickable { onNewCollection() })
                         }
                     }
@@ -244,9 +252,10 @@ fun EmptyScreen(noCollection: Boolean, onNewItem: () -> Unit, onNewCollection: (
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("This collection is empty")
-                            Text("Do you want to add an item ?",
-                                color = MaterialTheme.colors.primary,
+                            Text(stringResource(R.string.collection_is_empty))
+                            Text(
+                                stringResource(R.string.do_you_want_to_add_an_item),
+                                color = color,
                                 modifier = Modifier.clickable { onNewItem() })
                         }
                     }

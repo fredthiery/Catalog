@@ -37,7 +37,6 @@ fun DrawerItem(
     tag: String? = null,
     angleDegrees: Float = 0f,
     corners: CornerSizes = cornerSizes(),
-    button: @Composable (RowScope.() -> Unit) = {},
     onClick: () -> Unit = {}
 ) {
     val height by animateFloatAsState(if (selected) 128f else 64f)
@@ -56,7 +55,6 @@ fun DrawerItem(
         contentColor = backgroundColor.contentColor(),
         border = null
     ) {
-        /* TODO: Ajuster largeur de l'image (cf PhotoCardRow) */
         AsyncImage(
             model = backgroundImage,
             contentDescription = null,
@@ -84,7 +82,6 @@ fun DrawerItem(
             tag?.let {
                 Text(text = tag)
             }
-            button()
         }
     }
 }

@@ -15,10 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.fthiery.catalog.R
 import com.fthiery.catalog.contentColor
 import com.fthiery.catalog.ui.baselevel.angles
 import com.fthiery.catalog.ui.baselevel.cornerSizes
@@ -65,7 +67,7 @@ fun SlantedTopAppBar(
                     modifier = Modifier
                         .fillMaxSize()
                         .requiredHeight(250.dp),
-                    contentDescription = "Background",
+                    contentDescription = null,
                     contentScale = ContentScale.FillWidth,
                     alpha = 0.2f
                 )

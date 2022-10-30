@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Catalog</string>
+    <string name="title_activity_main">Catalog</string>
+    <string name="title_activity_edit">Modifier l\'élément</string>
+    <string name="label_item_name">Nom</string>
+    <string name="add_a_photo">Ajouter une photo</string>
+    <string name="save_item">Sauvegarder l\'élément</string>
+    <string name="add_an_item">Ajouter un élément</string>
+    <string name="add_a_collection">Ajouter une collection</string>
+    <string name="edit_collection">Modifier la collection</string>
+    <string name="search_in_this_collection">Rechercher dans cette collection</string>
+    <string name="back">Retour</string>
+    <string name="reset_search_pattern">Effacer la recherche</string>
+    <string name="dismiss">Annuler</string>
+    <string name="confirm">Valider</string>
+    <string name="delete_this_collection">Supprimer cette collection</string>
+    <string name="open_navigation_drawer">Ouvrir le tiroir de navigation</string>
+    <string name="menu">menu</string>
+    <string name="no_collection_found">Aucune collection trouvée !</string>
+    <string name="create_a_collection_to_start">Créez une collection pour démarrer</string>
+    <string name="collection_is_empty">Cette collection est vide</string>
+    <string name="do_you_want_to_add_an_item">Voulez-vous ajouter un élément ?</string>
+    <string name="delete_this_item">Supprimer cet élément</string>
+    <string name="name_of_this_item">Nom de cet élément</string>
+    <string name="description">Description</string>
+    <string name="details">Détails</string>
+    <string name="about_to_delete_item">Vous êtes sur le point de supprimer l\'élément %1$s !</string>
+    <string name="about_to_delete_collection">Vous êtes sur le point de supprimer la collection %1$s !</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete">Supprimer</string>
+    <string name="are_you_sure">Êtes-vous sûr ?</string>
+    <string name="edit_description">Modifier la description</string>
+    <string name="edit_details">Modifier les détails</string>
+    <string name="custom_field_name">Nom du champ personnalisé</string>
+    <string name="add_field">Ajouter le champ</string>
+    <string name="new_custom_field">Nouveau champ personnalisé</string>
+    <string name="photo">Photo</string>
+    <string name="pick_image_from_storage">Choisir une image dans la galerie</string>
+    <string name="take_a_photo">Prendre une photo</string>
+    <string name="collection_name">Nom de la collection</string>
+    <string name="close">Fermer</string>
+    <string name="add_item">Ajouter l\'élément</string>
+    <string name="fetch_from_wikipedia">Récupérer les détails depuis Wikipedia</string>
+</resources>

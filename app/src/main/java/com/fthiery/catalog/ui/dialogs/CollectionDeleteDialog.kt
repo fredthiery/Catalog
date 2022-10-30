@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fthiery.catalog.ui.baselevel.angles
@@ -16,6 +17,7 @@ import com.fthiery.catalog.ui.baselevel.cornerSizes
 import com.fthiery.catalog.ui.baselevel.quadrilateralShape
 import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.CollectionViewModel
+import com.fthiery.catalog.R
 
 @Composable
 fun CollectionDeleteDialog(
@@ -34,7 +36,7 @@ fun CollectionDeleteDialog(
             modifier = Modifier.padding(24.dp)
         ) {
             Text(
-                text = "Delete the collection ${viewModel.editCollection.name}",
+                text = stringResource(id = R.string.about_to_delete_collection, viewModel.editCollection.name),
                 style = MaterialTheme.typography.h6,
                 modifier = Modifier.rotate(angle)
             )
@@ -49,7 +51,7 @@ fun CollectionDeleteDialog(
                     shape = quadrilateralShape(cornerSizes(4.dp), angles(vertical = angle)),
                     onClick = { navController.navigateUp() }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(id = R.string.cancel))
                 }
                 Spacer(Modifier.width(8.dp))
                 Button(
@@ -59,7 +61,6 @@ fun CollectionDeleteDialog(
                     ),
                     colors = buttonColors(backgroundColor = MaterialTheme.colors.error),
                     onClick = {
-                        /* TODO: Sauvegarde la collection au lieu de l'effacer */
                         viewModel.delete(
                             collection = viewModel.editCollection,
                             onComplete = {
@@ -68,7 +69,7 @@ fun CollectionDeleteDialog(
                             })
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(id = R.string.delete))
                 }
             }
         }

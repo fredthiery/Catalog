@@ -1,17 +1,26 @@
 package com.fthiery.catalog
 
-import org.junit.Test
 
-import org.junit.Assert.*
+import com.fthiery.catalog.datasources.wikiparser.RootNode
+import com.fthiery.catalog.datasources.wikiparser.WikiParser
+import com.fthiery.catalog.datasources.wikiparser.WikiTextParser
+import org.junit.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class WikiTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun test_wikitext_parser() {
+        val result = WikiTextParser(wikiText).parse()
+        return
+    }
+
+    @Test
+    fun test_wikiParser() {
+        val result = WikiParser().parse(wikiText)
+        return
     }
 }

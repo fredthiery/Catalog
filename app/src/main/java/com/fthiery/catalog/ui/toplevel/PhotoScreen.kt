@@ -10,9 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.fthiery.catalog.R
 import com.fthiery.catalog.noRippleClickable
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
 import com.google.accompanist.insets.ui.TopAppBar
@@ -27,7 +29,9 @@ fun PhotoScreen(
         .noRippleClickable { navController.navigateUp() }
     ) {
         AsyncImage(
-            modifier = Modifier.align(Alignment.Center).fillMaxSize(),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxSize(),
             model = viewModel.displayPhoto,
             contentDescription = viewModel.item.name,
             contentScale = ContentScale.Fit
@@ -36,7 +40,7 @@ fun PhotoScreen(
             title = {},
             navigationIcon = {
                 IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(Icons.Filled.ArrowBack, "Back")
+                    Icon(Icons.Filled.ArrowBack, stringResource(id = R.string.back))
                 }
             },
             contentPadding = WindowInsets.systemBars.asPaddingValues(),

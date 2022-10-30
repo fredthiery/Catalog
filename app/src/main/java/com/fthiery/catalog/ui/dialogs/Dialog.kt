@@ -25,6 +25,7 @@ fun Dialog(
     dismissText: String = stringResource(id = R.string.dismiss),
     onConfirm: () -> Unit,
     confirmText: String = stringResource(id = R.string.confirm),
+    buttonColors: ButtonColors = ButtonDefaults.textButtonColors(),
     content: @Composable () -> Unit
 ) {
     Dialog(
@@ -68,8 +69,14 @@ fun Dialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    TextButton(onClick = onDismiss) { Text(dismissText.uppercase()) }
-                    TextButton(onClick = onConfirm) { Text(confirmText.uppercase()) }
+                    TextButton(
+                        onClick = onDismiss,
+                        colors = buttonColors
+                    ) { Text(dismissText.uppercase()) }
+                    TextButton(
+                        onClick = onConfirm,
+                        colors = buttonColors
+                    ) { Text(confirmText.uppercase()) }
                 }
             }
         }

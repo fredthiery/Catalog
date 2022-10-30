@@ -11,7 +11,7 @@ interface WikipediaApiService {
     @GET("api.php?action=query&list=search&utf8&format=json")
     suspend fun search(@Query("srsearch") query: String): WikipediaSearchResult
 
-    @GET("api.php?action=parse&prop=wikitext&utf8&format=json&section=0")
+    @GET("api.php?action=parse&prop=wikitext|properties&utf8&format=json&section=0&preview=true")
     suspend fun get(@Query("page") query:String): WikipediaPageResult
 
     companion object {

@@ -6,6 +6,7 @@ import com.fthiery.catalog.datasources.WikipediaApiService
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
 import com.fthiery.catalog.models.Search
+import com.fthiery.catalog.models.WikiResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -71,4 +72,9 @@ class ItemRepositoryImpl @Inject constructor(
     override suspend fun getSuggestions(query: String): List<Search> {
         return wiki.search(query).query?.search ?: listOf()
     }
+
+    override suspend fun getWikiPage(query: String): WikiResult? {
+        return wiki.get(query).wikiResult
+    }
+
 }

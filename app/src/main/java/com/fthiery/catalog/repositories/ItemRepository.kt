@@ -3,6 +3,7 @@ package com.fthiery.catalog.repositories
 import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.ItemCollection
 import com.fthiery.catalog.models.Search
+import com.fthiery.catalog.models.WikiResult
 import kotlinx.coroutines.flow.Flow
 
 interface ItemRepository {
@@ -20,7 +21,7 @@ interface ItemRepository {
 
     suspend fun insert(item: Item): Long
 
-    suspend fun insert(collection: ItemCollection) : Long
+    suspend fun insert(collection: ItemCollection): Long
 
     suspend fun delete(item: Item)
 
@@ -29,4 +30,6 @@ interface ItemRepository {
     suspend fun getPhoto(query: String): String?
 
     suspend fun getSuggestions(query: String): List<Search>
+
+    suspend fun getWikiPage(query: String): WikiResult?
 }

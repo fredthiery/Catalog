@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.fthiery.catalog.R
 import com.fthiery.catalog.ui.theme.scrimColor
 
 @Composable
@@ -80,7 +82,8 @@ fun MultiFloatingActionButton(
             Icon(
                 tint = contentColor,
                 imageVector = fabIcon,
-                contentDescription = if (extended) "Close" else "Add item",
+                contentDescription = if (extended) stringResource(R.string.close)
+                else stringResource(R.string.add_item),
                 modifier = Modifier.rotate(rotation)
             )
         }

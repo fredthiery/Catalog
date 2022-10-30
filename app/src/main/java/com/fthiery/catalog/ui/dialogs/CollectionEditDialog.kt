@@ -49,7 +49,7 @@ fun CollectionEditDialog(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Collection name") },
+                label = { Text(stringResource(R.string.collection_name)) },
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
                     angles(vertical = GLOBAL_ANGLE)
@@ -71,7 +71,7 @@ fun CollectionEditDialog(
                     ),
                     onClick = { navController.navigateUp() }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(id = R.string.cancel))
                 }
                 Spacer(Modifier.width(8.dp))
                 Button(
@@ -89,7 +89,7 @@ fun CollectionEditDialog(
                             })
                     }
                 ) {
-                    Text("Validate")
+                    Text(stringResource(id = R.string.confirm))
                 }
             }
         }

@@ -60,26 +60,6 @@ fun DrawerContent(
                         bottomEnd = if (index == items.size - 1) 24.dp else 4.dp,
                         default = 4.dp
                     ),
-                    button = {
-                        var dropdownExpanded by remember { mutableStateOf(false) }
-                        IconButton(onClick = { dropdownExpanded = true }) {
-                            Icon(Icons.Filled.Menu, "Edit ${collection.name}")
-                            DropdownMenu(
-                                expanded = dropdownExpanded,
-                                onDismissRequest = { dropdownExpanded = false }) {
-                                DropdownMenuItem(onClick = {
-                                    navController.navigate("EditCollection/${collection.id}")
-                                    dropdownExpanded = false
-                                }) { Text("Edit ${collection.name}") }
-                                DropdownMenuItem(onClick = {
-                                    navController.navigate("DeleteCollection/${collection.id}")
-                                    dropdownExpanded = false
-                                }) {
-                                    Text("Delete ${collection.name}")
-                                }
-                            }
-                        }
-                    },
                     onClick = { onItemClick(collection.id) },
                 )
             }
