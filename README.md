@@ -22,4 +22,5 @@ Une barre de recherche permet de filtrer les éléments.
 
 ## Aperçu de l’application
 
+![Home](README.assets/Home-1668242579148-7.png) ![](README.assets/Details-1668242671354-9.png) ![](README.assets/Details2.png) ![](README.assets/Details3.png) ![](README.assets/NavDrawer.png) ![](README.assets/EditDetails.png)
 
