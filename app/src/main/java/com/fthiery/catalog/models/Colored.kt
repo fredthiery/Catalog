@@ -6,9 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.fthiery.catalog.setSL
 
-open class Colored(
+interface Colored {
     var color: Int?
-) {
+
     @Composable
     fun backgroundColor(): Color {
         return if (isSystemInDarkTheme()) darkColor()

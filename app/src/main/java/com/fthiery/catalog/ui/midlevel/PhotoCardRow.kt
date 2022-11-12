@@ -3,6 +3,7 @@ package com.fthiery.catalog.ui.midlevel
 import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +36,7 @@ fun PhotoCardRow(
     color: Color = MaterialTheme.colors.primary,
     angleDegrees: Float = 0f,
     onNewPhoto: (Uri, Context) -> Unit,
+    onDeletePhoto: (Uri) -> Unit,
     onClick: (Uri) -> Unit
 ) {
     val context = LocalContext.current
@@ -57,7 +60,7 @@ fun PhotoCardRow(
     val rowHeight = photoCardSize * offset
     val widthOffset = (90f - abs(angleDegrees)).degreesOffset()
     val heightOffset = angleDegrees.absDegOffset() * rowHeight
-    val width =  LocalConfiguration.current.screenWidthDp / widthOffset + heightOffset
+    val width = LocalConfiguration.current.screenWidthDp / widthOffset + heightOffset
 
     LazyRow(
         modifier = modifier
@@ -70,12 +73,18 @@ fun PhotoCardRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(photos) { photo ->
+            var dropdownExpanded by remember { mutableStateOf(false) }
             Card(
                 modifier = Modifier
                     .clickable { onClick(photo) }
                     .width(photoCardSize.dp)
                     .height(rowHeight.dp)
-                    .rotate(-angleDegrees),
+                    .rotate(-angleDegrees)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = { dropdownExpanded = true }
+                        )
+                    },
                 shape = quadrilateralShape(
                     cornerSizes(4.dp),
                     angles(horizontal = angleDegrees)
@@ -87,6 +96,16 @@ fun PhotoCardRow(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.requiredHeight((rowHeight * offset).dp)
                 )
+            }
+            DropdownMenu(
+                expanded = dropdownExpanded,
+                onDismissRequest = { dropdownExpanded = false }) {
+
+                DropdownMenuItem(
+                    onClick = {
+                        onDeletePhoto(photo)
+                        dropdownExpanded = false
+                    }) { Text(stringResource(R.string.delete_this_picture)) }
             }
         }
 

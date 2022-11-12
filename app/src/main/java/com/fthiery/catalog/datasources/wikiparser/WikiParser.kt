@@ -1,24 +1,24 @@
 package com.fthiery.catalog.datasources.wikiparser
 
 class WikiParser(
-    val type: WikiType = WikiType.Root,
+    private val type: WikiType = WikiType.Root,
     var tag: String = ""
 ) : ArrayList<Node>() {
 
-    var remainingText = ""
+    private var remainingText = ""
 
     companion object {
         const val FIRST_PASS = """(''+.*?''+)|(==+.*?==+)|(\{\{)|(\}\})|(\[+)|(]+)|(\|)|(<.*?>)"""
     }
 
     enum class WikiType {
-        Root, Text, Title, Link, Property, Html, Template, Argument
+        Root, Text, Title, Link, Html, Template, Argument
     }
 
     override fun toString(): String = joinToString(separator = "")
 
     fun parse(textToParse: String): Node {
-        remainingText = firstPass(textToParse.removeComments())
+        remainingText = firstPass(textToParse.clean())
         secondPass()
 
         val node: Node = when (type) {
@@ -26,7 +26,6 @@ class WikiParser(
             WikiType.Text     -> TextNode()
             WikiType.Title    -> TitleNode()
             WikiType.Link     -> LinkNode(last().toString(), first().toString())
-            WikiType.Property -> PropertyNode("")
             WikiType.Html     -> HtmlNode(tag)
             WikiType.Template -> {
                 val name = first().toString().trim()
@@ -39,8 +38,22 @@ class WikiParser(
         return node
     }
 
+    private fun String.clean(): String {
+        return this.removeQuotes().removeComments().removeNBSP()
+    }
+
     private fun String.removeComments(): String {
         return Regex("""<!--.+?-->""").replace(this, "")
+    }
+
+    private fun String.removeQuotes(): String {
+        // Ignores Bold and Italic text to circumvent a bug
+        // Should instead use SpannableString for textNodes and parse Bold and Italic in the second pass
+        return Regex("""\'\'+""").replace(this,"")
+    }
+
+    private fun String.removeNBSP(): String {
+        return this.replace("&nbsp;"," ")
     }
 
     /**
@@ -150,7 +163,7 @@ class WikiParser(
     private fun secondPass() {
         val regex = Regex(""".*=""")
         forEach {
-            if (it is ArgumentNode) {
+            if (it is ArgumentNode && it.isNotEmpty()) {
                 val text = it.first().toString()
                 val result = regex.find(text)
                 if (result != null) {

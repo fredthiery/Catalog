@@ -1,9 +1,6 @@
 package com.fthiery.catalog.ui.toplevel
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -76,7 +73,7 @@ fun HomeScreen(
     TransparentScaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            AnimatedVisibility(collections.isNotEmpty(), enter = fadeIn(), exit = fadeOut()) {
+            if (collections.isNotEmpty()) {
                 SearchAppBar(
                     contentColor = collection?.backgroundColor()?.contentColor()
                         ?: MaterialTheme.colors.onSurface,
@@ -127,37 +124,35 @@ fun HomeScreen(
         },
         drawerGesturesEnabled = collections.isNotEmpty()
     ) {
-        Crossfade(targetState = items.isEmpty()) { empty ->
-            when (empty) {
-                true  -> EmptyScreen(
-                    noCollection = collections.isEmpty(),
-                    onNewItem = { collection?.let { onNewItem(it.id) } },
-                    onNewCollection = { navController.navigate("NewCollection") },
-                    color = collection?.contentColor() ?: MaterialTheme.colors.primary
-                )
-                false -> LazyVerticalGrid(
-                    columns = GridCells.Adaptive(160.dp),
-                    state = scrollState,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = WindowInsets
-                        .systemBars
-                        .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
-                        .add(WindowInsets(16.dp, 180.dp, 16.dp, 16.dp))
-                        .asPaddingValues()
-                ) {
-                    /* TODO: Utiliser Modifier.animateItemPlacement */
-                    items(items = items) { item ->
-                        var offset by remember { mutableStateOf(0) }
-                        Box(modifier = Modifier
-                            .onGloballyPositioned {
-                                offset =
-                                    (it.positionInParent().x * GLOBAL_ANGLE.degreesOffset()).toInt()
-                            }
-                            .offset { IntOffset(0, offset) }
-                        ) {
-                            ItemCard(item, GLOBAL_ANGLE, onItemSelect)
+        when (items.isEmpty()) {
+            true  -> EmptyScreen(
+                noCollection = collections.isEmpty(),
+                onNewItem = { collection?.let { onNewItem(it.id) } },
+                onNewCollection = { navController.navigate("NewCollection") },
+                color = collection?.contentColor() ?: MaterialTheme.colors.primary
+            )
+            false -> LazyVerticalGrid(
+                columns = GridCells.Adaptive(160.dp),
+                state = scrollState,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = WindowInsets
+                    .systemBars
+                    .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+                    .add(WindowInsets(16.dp, 180.dp, 16.dp, 16.dp))
+                    .asPaddingValues()
+            ) {
+                /* TODO: Utiliser Modifier.animateItemPlacement */
+                items(items = items) { item ->
+                    var offset by remember { mutableStateOf(0) }
+                    Box(modifier = Modifier
+                        .onGloballyPositioned {
+                            offset =
+                                (it.positionInParent().x * GLOBAL_ANGLE.degreesOffset()).toInt()
                         }
+                        .offset { IntOffset(0, offset) }
+                    ) {
+                        ItemCard(item, GLOBAL_ANGLE, onItemSelect)
                     }
                 }
             }
@@ -165,7 +160,6 @@ fun HomeScreen(
 
         SlantedTopAppBar(
             angleDegrees = GLOBAL_ANGLE,
-            scrolled = scrollState.firstVisibleItemIndex > 0,
             backgroundImage = collection?.photo ?: R.drawable.stripes,
             backgroundColor = collection?.backgroundColor() ?: MaterialTheme.colors.surface
         ) {
@@ -174,7 +168,7 @@ fun HomeScreen(
             }
         }
 
-// TODO: utiliser un Dialog
+        // TODO: utiliser un Dialog
         val backgroundColor = collection?.backgroundColor() ?: MaterialTheme.colors.secondary
         MultiFloatingActionButton(
             modifier = Modifier.systemBarsPadding(),

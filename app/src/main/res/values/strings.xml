@@ -44,4 +44,5 @@
     <string name="add_item">Add item</string>
     <string name="fetch_from_wikipedia">Fetch details from Wikipedia</string>
     <string name="wikipedia_suggestions_title">Get description and details from Wikipedia</string>
+    <string name="delete_this_picture">Delete this picture</string>
 </resources>

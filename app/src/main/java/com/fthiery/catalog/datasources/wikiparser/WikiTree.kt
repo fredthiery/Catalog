@@ -1,10 +1,23 @@
 package com.fthiery.catalog.datasources.wikiparser
 
-const val TAGS = """(\{\{)|(\}\})|(<.*?>)|(\[\[)|(]])"""
-
 enum class FontStyle {
     Normal, Italic, Bold, ItalicBold
 }
+
+val MONTHS = listOf(
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+)
 
 interface Node {
     var style: FontStyle
@@ -22,10 +35,14 @@ abstract class ParentNode : Node, ArrayList<Node>() {
         }
     private var _style: FontStyle = FontStyle.Normal
 
-    fun getProperties(): Map<String, String> {
+    open fun getProperties(): Map<String, String> {
         val map = mutableMapOf<String, String>()
         forEach {
-            if (it is ParentNode) map.putAll(it.getProperties())
+            if (it is ParentNode) {
+                val properties = it.getProperties()
+                if (it !is TemplateNode || it.name.lowercase().startsWith("infobox"))
+                    map.putAll(properties)
+            }
         }
         return map
     }
@@ -59,22 +76,13 @@ class LinkNode(
     override fun toString(): String = label
 }
 
-class PropertyNode(
-    var key: String
-) : ParentNode() {
-    override fun toString(): String = "$key = $value"
-
-    val value: String
-        get() = joinToString("").trim()
-}
-
 class HtmlNode(
     var tag: String = ""
 ) : ParentNode() {
     override fun toString(): String {
         return when (tag.lowercase()) {
             "span" -> joinToString("")
-            "ref"  -> tag
+            "br"   -> "\n"
             else   -> ""
         }
     }
@@ -85,20 +93,40 @@ class TemplateNode(
 ) : ParentNode() {
     override fun toString(): String {
         return when (name.lowercase()) {
-            "langue"           -> last().toString()
-            "unité"            -> joinToString(" ")
-            "nihongo foot"     -> first().toString()
-            "vgrelease"        -> {
+            "nihongo", "nihongo foot", "collapsible list"
+                 -> first().toString()
+            "unbulleted list", "ubl", "plainlist", "based on"
+                 -> joinToString("\n")
+            "vgrelease", "video game release"
+                 -> {
                 val stringBuilder = StringBuilder()
+                stringBuilder.append("\n")
                 for (i in this.indices step 2) {
                     val key = this[i].toString()
                     val value = getOrNull(i + 1).toString()
-                    stringBuilder.append("$key: $value, ")
+                    stringBuilder.append("$key: $value\n")
                 }
-                stringBuilder.toString().trim()
+                stringBuilder.append("\n")
+                stringBuilder.toString()
             }
-            "collapsible list" -> first().toString()
-            else               -> name
+            else -> {
+                when {
+                    name.lowercase().startsWith("date range")
+                         -> {
+                        val stringBuilder = StringBuilder()
+                        for (i in this.indices step 3) {
+                            val year = getOrNull(i).toString()
+                            val month = getOrNull(i + 1).toString()
+                            val strMonth = MONTHS.getOrElse(month.toIntOrNull() ?: 12) { month }
+                            val day = getOrNull(i + 2).toString()
+                            stringBuilder.append("$strMonth $day, $year")
+                            if (i < this.size - 3) stringBuilder.append(" – ")
+                        }
+                        stringBuilder.toString()
+                    }
+                    else -> ""
+                }
+            }
         }
     }
 }
@@ -115,4 +143,10 @@ class ArgumentNode(
 
     val value: String
         get() = joinToString("").trim()
+
+    override fun getProperties(): Map<String, String> {
+        return if (value.isNotEmpty())
+            mapOf(key to value)
+        else mapOf()
+    }
 }

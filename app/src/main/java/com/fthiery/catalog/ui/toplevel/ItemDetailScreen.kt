@@ -1,6 +1,6 @@
 package com.fthiery.catalog.ui.toplevel
 
-import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
@@ -30,12 +30,11 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.fthiery.catalog.*
 import com.fthiery.catalog.R
-import com.fthiery.catalog.contentColor
-import com.fthiery.catalog.copyToInternalStorage
 import com.fthiery.catalog.datasources.wikiparser.WikiTextParser
+import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.models.Search
-import com.fthiery.catalog.noRippleClickable
 import com.fthiery.catalog.ui.baselevel.*
 import com.fthiery.catalog.ui.dialogs.Dialog
 import com.fthiery.catalog.ui.midlevel.PhotoCardRow
@@ -43,17 +42,20 @@ import com.fthiery.catalog.ui.midlevel.SlantedTopAppBar
 import com.fthiery.catalog.ui.midlevel.TransparentScaffold
 import com.fthiery.catalog.ui.theme.GLOBAL_ANGLE
 import com.fthiery.catalog.viewmodels.ItemDetailViewModel
+import java.util.*
 
 @Composable
 fun ItemDetailScreen(
+    item: Item,
     viewModel: ItemDetailViewModel,
     navController: NavController
 ) {
-    val item by mutableStateOf(viewModel.item)
     var modified by rememberSaveable { mutableStateOf(false) }
 
     var name by rememberSaveable(item.name) { mutableStateOf(item.name) }
     var description by rememberSaveable(item.description) { mutableStateOf(item.description) }
+    var properties by rememberSaveable(item.properties) { mutableStateOf(item.properties) }
+    var photos by rememberSaveable(item.photos) { mutableStateOf(item.photos) }
 
     var deleteConfirmationDialog by remember { mutableStateOf(false) }
     var nameEdit by remember { mutableStateOf(false) }
@@ -122,9 +124,21 @@ fun ItemDetailScreen(
                     onClick = {
                         // Save the item into the database
                         // TODO: Si description et détails vides, proposer de les récupérer sur Wikipedia
-                        item.name = name
-                        item.description = description
-                        viewModel.save(item, context)
+                        val photosToDelete = item.photos - photos.toSet()
+                        Log.i("debug", "Photos to delete:\n" + photosToDelete.joinToString("\n"))
+                        photosToDelete.forEach { deleteFromInternalStorage(it, context) }
+
+                        val itemToSave = item.copy(
+                            name = name,
+                            description = description,
+                            photos = photos,
+                            properties = properties,
+                            lastUpdated = Calendar.getInstance()
+                        )
+                        viewModel.save(itemToSave, context) {
+                            navController.popBackStack()
+                            navController.navigate("ReloadItem/$it")
+                        }
                         modified = false
                     },
                     backgroundColor = item.backgroundColor(),
@@ -148,7 +162,7 @@ fun ItemDetailScreen(
         ) {
             SlantedTopAppBar(
                 angleDegrees = GLOBAL_ANGLE,
-                backgroundImage = item.photos.getOrNull(0),
+                backgroundImage = photos.getOrNull(0),
                 backgroundColor = item.backgroundColor(),
                 onTitleClick = { nameEdit = true }
             ) {
@@ -197,23 +211,25 @@ fun ItemDetailScreen(
             }
 
             // PHOTOS
-            val photos = mutableStateListOf<Uri>()
-            photos.addAll(item.photos)
             PhotoCardRow(
                 photos = photos,
                 color = item.backgroundColor(),
                 angleDegrees = GLOBAL_ANGLE,
                 onNewPhoto = { uri, context ->
                     copyToInternalStorage(uri, context)?.let {
-                        photos.add(it)
-                        item.photos = photos
+                        val newPhotos = photos.toMutableList()
+                        newPhotos.add(it)
+                        photos = newPhotos
                     }
                     modified = true
                 },
-                onClick = {
-                    viewModel.displayPhoto = it
-                    navController.navigate("DisplayPhoto")
-                }
+                onDeletePhoto = { uri ->
+                    val newPhotos = photos.toMutableList()
+                    newPhotos.remove(uri)
+                    photos = newPhotos
+                    modified = true
+                },
+                onClick = { navController.navigate("DisplayPhoto?uri=$it") }
             )
 
             // DESCRIPTION
@@ -226,7 +242,7 @@ fun ItemDetailScreen(
             }
 
             // PROPERTIES
-            val propertiesList = item.properties.map { it.key to it.value }
+            val propertiesList = properties.map { it.key to it.value }
             SlantedSurface(
                 title = stringResource(R.string.details),
                 titleColor = item.backgroundColor(),
@@ -304,18 +320,24 @@ fun ItemDetailScreen(
     }
 
     if (wikipediaSuggestionsDialog) {
-        var wikiArticleTitle by mutableStateOf<String?>(null)
+        var wikiArticleTitle by remember { mutableStateOf<String?>(null) }
         Dialog(
             title = stringResource(R.string.wikipedia_suggestions_title),
             onDismiss = { wikipediaSuggestionsDialog = false },
             onConfirm = {
                 // If a suggestion has been selected, get the details
-                wikiArticleTitle?.let { viewModel.getDetails(it) }
+                wikiArticleTitle?.let {
+                    viewModel.fetchDetailsFromWikipedia(it) { newDescription, newProperties ->
+                        description = newDescription
+                        properties = newProperties
+                    }
+                }
+                modified = true
                 wikipediaSuggestionsDialog = false
             },
             buttonColors = buttonColors
         ) {
-            var suggestions by mutableStateOf<List<Search>>(listOf())
+            var suggestions by remember { mutableStateOf<List<Search>>(listOf()) }
             viewModel.getSuggestions(name) { suggestions = it }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 suggestions.forEach { suggestion ->
@@ -324,7 +346,8 @@ fun ItemDetailScreen(
                         backgroundColor = if (wikiArticleTitle == suggestion.title) item.backgroundColor() else Color.Transparent,
                         contentColor = if (wikiArticleTitle == suggestion.title) item.backgroundColor()
                             .contentColor() else MaterialTheme.colors.onSurface,
-                        modifier = Modifier.clickable { wikiArticleTitle = suggestion.title }
+                        modifier = Modifier
+                            .clickable { wikiArticleTitle = suggestion.title }
                     ) {
                         Column(modifier = Modifier.padding(4.dp)) {
                             Text(text = suggestion.title ?: "")
@@ -340,29 +363,30 @@ fun ItemDetailScreen(
     }
 
     if (propertiesEditDialog) {
-        val properties = remember { mutableStateListOf<Pair<String, String>>() }
-        properties.addAll(item.properties.map { it.key to it.value })
+        val propertyList = remember { mutableStateListOf<Pair<String, String>>() }
+        propertyList.clear()
+        propertyList.addAll(properties.map { it.key to it.value })
         Dialog(
             title = stringResource(R.string.edit_details),
             onDismiss = { propertiesEditDialog = false },
             onConfirm = {
                 propertiesEditDialog = false
                 modified = true
-                properties.forEach {
-                    item.properties[it.first] = it.second
-                }
+                val propertyMap = mutableMapOf<String, String>()
+                propertyList.forEach { propertyMap[it.first] = it.second }
+                properties = propertyMap
             },
             buttonColors = buttonColors
         ) {
             var newProperty by remember { mutableStateOf(false) }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                properties.forEachIndexed { index, item ->
+                propertyList.forEachIndexed { index, item ->
                     var value by rememberSaveable { mutableStateOf(item.second) }
                     OutlinedTextField(
                         value = value,
                         onValueChange = {
                             value = it
-                            properties[index] = item.first to value
+                            propertyList[index] = item.first to value
                         },
                         label = { Text(item.first) },
                         colors = textFieldColors,
@@ -385,7 +409,7 @@ fun ItemDetailScreen(
                         )
                         TextButton(
                             onClick = {
-                                properties.add(newPropertyName to "")
+                                propertyList.add(newPropertyName to "")
                                 /* TODO: mettre le focus sur le nouveau champ */
                                 newProperty = false
                             },

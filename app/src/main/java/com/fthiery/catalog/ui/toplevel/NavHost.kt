@@ -8,8 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.dialog
+import com.fthiery.catalog.models.Item
 import com.fthiery.catalog.ui.dialogs.CollectionDeleteDialog
 import com.fthiery.catalog.ui.dialogs.CollectionEditDialog
 import com.fthiery.catalog.viewmodels.CollectionViewModel
@@ -45,33 +47,58 @@ fun NavHost(
                 collectionId = collectionId,
                 onCollectionSelect = { collectionId = it },
                 onItemSelect = {
-                    itemDetailViewModel.selectItem(itemId = it)
-                    navController.navigate("Item")
+//                    itemDetailViewModel.selectItem(itemId = it)
+                    navController.navigate("Item/$it")
                 },
                 onNewItem = {
-                    itemDetailViewModel.selectItem(collectionId = it)
-                    navController.navigate("Item")
+//                    itemDetailViewModel.selectItem(collectionId = it)
+                    navController.navigate("NewItem/$it")
                 }
             )
         }
         composable(
-            "Item",
+            "NewItem/{collectionId}",
             enterTransition = { slideInHorizontally { it } },
             popEnterTransition = { fadeIn() },
             popExitTransition = { slideOutHorizontally { it } }
         ) {
+            val id = it.arguments?.getString("collectionId")?.toLong()
             ItemDetailScreen(
+                item = Item(collectionId = id ?: 0),
                 viewModel = itemDetailViewModel,
                 navController = navController
             )
         }
-        dialog("EditCollection/{collectionId}") { entry ->
-            val id = entry.arguments?.getString("collectionId")?.toLong()
+        composable(
+            "Item/{itemId}",
+            enterTransition = { slideInHorizontally { it } },
+            popEnterTransition = { fadeIn() },
+            popExitTransition = { slideOutHorizontally { it } }
+        ) {
+            val id = it.arguments?.getString("itemId")?.toLong()
+            val item by itemDetailViewModel.getItem(id).collectAsState(initial = Item(0))
+            ItemDetailScreen(
+                item = item,
+                viewModel = itemDetailViewModel,
+                navController = navController
+            )
+        }
+        composable("ReloadItem/{itemId}") {
+            val id = it.arguments?.getString("itemId")?.toLong()
+            val item by itemDetailViewModel.getItem(id).collectAsState(initial = Item(0))
+            ItemDetailScreen(
+                item = item,
+                viewModel = itemDetailViewModel,
+                navController = navController
+            )
+        }
+        dialog("EditCollection/{collectionId}") {
+            val id = it.arguments?.getString("collectionId")?.toLong()
             collectionViewModel.selectCollection(id)
             CollectionEditDialog(
                 viewModel = collectionViewModel,
                 navController = navController,
-                onComplete = { collectionId = it }
+                onComplete = { editId -> collectionId = editId }
             )
         }
         dialog("NewCollection") {
@@ -82,8 +109,8 @@ fun NavHost(
                 onComplete = { collectionId = it }
             )
         }
-        dialog("DeleteCollection/{collectionId}") { entry ->
-            val id = entry.arguments?.getString("collectionId")?.toLong()
+        dialog("DeleteCollection/{collectionId}") {
+            val id = it.arguments?.getString("collectionId")?.toLong()
             collectionViewModel.selectCollection(id)
             CollectionDeleteDialog(
                 viewModel = collectionViewModel,
@@ -93,10 +120,12 @@ fun NavHost(
         }
         /* TODO: Should be a dialog */
         dialog(
-            "DisplayPhoto",
+            "DisplayPhoto?uri={uri}",
             dialogProperties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
+            val uri = it.arguments?.getString("uri")?.toUri()
             PhotoScreen(
+                photo = uri,
                 viewModel = itemDetailViewModel,
                 navController = navController
             )

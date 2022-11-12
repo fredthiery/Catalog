@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color.rgb
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,6 +26,7 @@ import androidx.palette.graphics.Palette
 import coil.imageLoader
 import coil.request.ImageRequest
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.io.File
 import java.lang.Float.min
 import java.util.*
 import kotlin.coroutines.resume
@@ -39,6 +41,20 @@ fun copyToInternalStorage(uri: Uri?, context: Context): Uri? {
     val outputFile = context.filesDir.resolve("${UUID.randomUUID()}.jpg")
     input.copyTo(outputFile.outputStream())
     return outputFile.toUri()
+}
+
+fun deleteFromInternalStorage(uri: Uri?, context: Context) {
+    uri?.let {
+        var file = File(it.path ?: "")
+        if (file.exists()) {
+            Log.i("debug", "$uri exists")
+            file.delete()
+        }
+        file = File(it.path ?: "")
+        if (!file.exists()) {
+            Log.i("debug", "$uri deleted")
+        }
+    }
 }
 
 /**
@@ -117,7 +133,6 @@ fun Float.toRad(): Float = (this * PI / 180).toFloat()
 fun Float.degreesOffset(): Float = sin(this.toRad())
 fun Float.absDegOffset(): Float = sin(abs(this.toRad()))
 
-@ColorInt
 suspend fun getBitmapColor(path: String, context: Context): Int {
     val drawable = context.imageLoader.execute(
         ImageRequest
@@ -129,7 +144,6 @@ suspend fun getBitmapColor(path: String, context: Context): Int {
     return getColor(drawable)
 }
 
-@ColorInt
 private suspend fun getColor(drawable: Drawable?): Int {
     drawable?.let {
         return suspendCancellableCoroutine { continuation ->
@@ -161,7 +175,7 @@ fun Color.contentColor(): Color {
     else Color.White
 }
 
-inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
     clickable(indication = null,
         interactionSource = remember { MutableInteractionSource() }) {
         onClick()

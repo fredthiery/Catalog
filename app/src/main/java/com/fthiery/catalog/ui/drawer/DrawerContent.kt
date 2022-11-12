@@ -1,14 +1,8 @@
 package com.fthiery.catalog.ui.drawer
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -32,21 +26,20 @@ fun DrawerContent(
     onItemClick: (collectionId: Long) -> Unit
 ) {
     ProvideTextStyle(TextStyle(fontStyle = FontStyle.Italic)) {
-        LazyColumn(
-            contentPadding = WindowInsets.systemBars.asPaddingValues(),
-            modifier = Modifier.padding(16.dp)
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .safeContentPadding()
         ) {
-            item {
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.h2,
-                    fontStyle = FontStyle.Italic,
-                    modifier = Modifier
-                        .rotate(angleDegrees)
-                        .padding(vertical = 20.dp)
-                )
-            }
-            itemsIndexed(items) { index, collection ->
+            Text(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.h2,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier
+                    .rotate(angleDegrees)
+                    .padding(vertical = 20.dp)
+            )
+            items.forEachIndexed { index, collection ->
                 val size by viewModel.collectionSize(collection.id).collectAsState(0L)
                 DrawerItem(
                     selected = collection.id == collectionId,

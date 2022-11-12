@@ -1,5 +1,7 @@
 package com.fthiery.catalog.ui.toplevel
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -21,6 +23,7 @@ import com.google.accompanist.insets.ui.TopAppBar
 
 @Composable
 fun PhotoScreen(
+    photo: Uri? = null,
     viewModel: ItemDetailViewModel,
     navController: NavController
 ) {
@@ -28,12 +31,13 @@ fun PhotoScreen(
         .fillMaxSize()
         .noRippleClickable { navController.navigateUp() }
     ) {
+        // TODO: Add the name of the item as contentDescription
         AsyncImage(
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxSize(),
-            model = viewModel.displayPhoto,
-            contentDescription = viewModel.item.name,
+            model = photo,
+            contentDescription = "",
             contentScale = ContentScale.Fit
         )
         TopAppBar(

@@ -1,7 +1,6 @@
 package com.fthiery.catalog
 
 
-import com.fthiery.catalog.datasources.wikiparser.RootNode
 import com.fthiery.catalog.datasources.wikiparser.WikiParser
 import com.fthiery.catalog.datasources.wikiparser.WikiTextParser
 import org.junit.Test
@@ -20,7 +19,7 @@ class WikiTest {
 
     @Test
     fun test_wikiParser() {
-        val result = WikiParser().parse(wikiText)
+        val result = WikiParser().parse(wikiText2)
         return
     }
 }

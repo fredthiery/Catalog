@@ -42,4 +42,6 @@
     <string name="close">Fermer</string>
     <string name="add_item">Ajouter l\'élément</string>
     <string name="fetch_from_wikipedia">Récupérer les détails depuis Wikipedia</string>
+    <string name="wikipedia_suggestions_title">Télécharger la description et les détails depuis Wikipedia</string>
+    <string name="delete_this_picture">Supprimer cette image</string>
 </resources>

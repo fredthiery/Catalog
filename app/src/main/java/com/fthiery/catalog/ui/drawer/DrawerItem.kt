@@ -39,7 +39,7 @@ fun DrawerItem(
     corners: CornerSizes = cornerSizes(),
     onClick: () -> Unit = {}
 ) {
-    val height by animateFloatAsState(if (selected) 128f else 64f)
+    val height = if (selected) 128f else 64f
     val backgroundColor = if (selected) itemColor else colors.surface
     Surface(
         modifier = modifier
